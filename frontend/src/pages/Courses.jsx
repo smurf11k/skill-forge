@@ -1,0 +1,293 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import api, { getUser } from "../api/auth";
+import { useCourseProgress } from "../hooks/useCourseProgress";
+import { StatusBadge, ProgressBar, ScoreText } from "../components/StatusBadge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+const EMPTY = { title: "", description: "" };
+
+export default function Courses() {
+  const navigate = useNavigate();
+  const user = getUser();
+  const isAdmin = user.role === "admin";
+  const { courses, loading } = useCourseProgress();
+
+  // Employee filter
+  const [filter, setFilter] = useState("all");
+
+  // Admin form
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState(EMPTY);
+  const [editingId, setEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  const openNew = () => {
+    setEditingId(null);
+    setForm(EMPTY);
+    setShowForm(true);
+  };
+  const openEdit = (course, e) => {
+    e.stopPropagation();
+    setEditingId(course.id);
+    setForm({ title: course.title, description: course.description || "" });
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editingId) await api.put(`/courses/${editingId}`, form);
+      else await api.post("/courses", form);
+      setShowForm(false);
+      setEditingId(null);
+      setForm(EMPTY);
+      window.location.reload();
+    } catch {
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id, e) => {
+    e.stopPropagation();
+    if (!confirm("Delete this course and all its content?")) return;
+    await api.delete(`/courses/${id}`);
+    window.location.reload();
+  };
+
+  if (loading)
+    return (
+      <Layout>
+        <div className="p-8 text-muted-foreground">Loading…</div>
+      </Layout>
+    );
+
+  const filtered = isAdmin
+    ? courses
+    : filter === "all"
+      ? courses
+      : courses.filter((c) => c.status === filter);
+
+  const metaLine = (course) =>
+    [
+      `${course.totalLessons} lesson${course.totalLessons !== 1 ? "s" : ""}`,
+      `${course.totalQuizzes} quiz${course.totalQuizzes !== 1 ? "zes" : ""}`,
+    ].join(" · ");
+
+  return (
+    <Layout>
+      <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
+        {/* Header */}
+        <div className="flex items-end justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">
+              {isAdmin ? "Manage Courses" : "Courses"}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isAdmin
+                ? `${courses.length} course${courses.length !== 1 ? "s" : ""}`
+                : `${courses.filter((c) => c.isCompleted).length} of ${courses.length} completed`}
+            </p>
+          </div>
+          {isAdmin ? (
+            <Button
+              onClick={
+                showForm && !editingId ? () => setShowForm(false) : openNew
+              }
+              variant={showForm && !editingId ? "outline" : "default"}
+            >
+              {showForm && !editingId ? "Cancel" : "+ New Course"}
+            </Button>
+          ) : (
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="not_started">Not Started</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        {/* Admin create/edit form */}
+        {showForm && isAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base text-left">
+                {editingId ? "Edit Course" : "New Course"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-3">
+                <div className="space-y-1">
+                  <Label>Title</Label>
+                  <Input
+                    value={form.title}
+                    onChange={(e) =>
+                      setForm({ ...form, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) =>
+                      setForm({ ...form, description: e.target.value })
+                    }
+                    rows={3}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Saving…" : editingId ? "Update" : "Create"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditingId(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Course grid */}
+        <div className="grid grid-cols-3 gap-4">
+          {filtered.map((course) => (
+            <Card
+              key={course.id}
+              className="cursor-pointer hover:border-foreground/20 transition-colors flex flex-col"
+              onClick={() => navigate(`/courses/${course.id}`)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-sm leading-snug">
+                    {course.title}
+                  </CardTitle>
+                  {!isAdmin && <StatusBadge status={course.status} />}
+                </div>
+              </CardHeader>
+
+              <CardContent className="flex flex-col gap-3 flex-1">
+                <p className="text-xs text-muted-foreground line-clamp-2">
+                  {course.description || "No description."}
+                </p>
+
+                {/* Lesson + quiz count — shown for both roles */}
+                <p className="text-xs text-muted-foreground">
+                  {metaLine(course)}
+                </p>
+
+                {/* Employee: progress bar + avg score */}
+                {!isAdmin && (
+                  <div className="space-y-1">
+                    <ProgressBar pct={course.progressPct} />
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>{course.progressPct}% complete</span>
+                      {course.avgScore !== null && (
+                        <span>
+                          Avg{" "}
+                          <ScoreText
+                            pct={course.avgScore}
+                            className="text-xs"
+                          />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Employee: action button */}
+                {!isAdmin && (
+                  <Button
+                    size="sm"
+                    variant={
+                      course.status === "not_started" ? "outline" : "default"
+                    }
+                    className="w-full mt-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/courses/${course.id}`);
+                    }}
+                  >
+                    {course.status === "completed"
+                      ? "Review"
+                      : course.status === "in_progress"
+                        ? "Continue →"
+                        : "Start Course →"}
+                  </Button>
+                )}
+
+                {/* Admin: view / edit / delete */}
+                {isAdmin && (
+                  <div
+                    className="flex gap-2 mt-auto"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => navigate(`/courses/${course.id}`)}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => openEdit(course, e)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-destructive hover:text-destructive"
+                      onClick={(e) => handleDelete(course.id, e)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {filtered.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center py-12">
+            {isAdmin
+              ? "No courses yet. Create one above."
+              : "No courses match this filter."}
+          </p>
+        )}
+      </div>
+    </Layout>
+  );
+}
