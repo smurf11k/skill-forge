@@ -10,7 +10,7 @@ An internal employee training platform built for engineering teams. Employees wo
 
 **Backend** — Laravel 11, Sanctum (token auth), PostgreSQL
 
-**Infrastructure** — PostgreSQL runs in Docker, frontend dev server on Vite, backend on `php artisan serve`
+**Infrastructure** — PostgreSQL runs in Docker, frontend dev server on Vite, backend on `php artisan serve`, and project documentation is built with VitePress in the `docs/` folder
 
 ---
 
@@ -55,27 +55,33 @@ skill-forge-pr/
 │   │   ├── ResultController.php
 │   │   └── UserController.php
 │   └── routes/api.php
-└── frontend/                 # React + Vite
-    └── src/
-        ├── api/auth.js
-        ├── hooks/useCourseProgress.js
-        ├── components/
-        │   ├── Layout.jsx
-        │   ├── StatusBadge.jsx
-        │   └── markdown/
-        │       ├── LessonMarkdownEditor.jsx
-        │       └── MarkdownContent.jsx
-        └── pages/
-            ├── Login.jsx
-            ├── Dashboard.jsx
-            ├── Courses.jsx
-            ├── CourseView.jsx
-            ├── Results.jsx
-            ├── AdminDashboard.jsx
-            ├── AdminTeamProgress.jsx
-            ├── AdminUsers.jsx
-            ├── AdminContent.jsx
-            └── AdminCourseView.jsx
+├── frontend/                 # React + Vite
+│   └── src/
+│       ├── api/auth.js
+│       ├── hooks/useCourseProgress.js
+│       ├── components/
+│       │   ├── Layout.jsx
+│       │   ├── StatusBadge.jsx
+│       │   └── markdown/
+│       │       ├── LessonMarkdownEditor.jsx
+│       │       └── MarkdownContent.jsx
+│       └── pages/
+│           ├── Login.jsx
+│           ├── Dashboard.jsx
+│           ├── Courses.jsx
+│           ├── CourseView.jsx
+│           ├── Results.jsx
+│           ├── AdminDashboard.jsx
+│           ├── AdminTeamProgress.jsx
+│           ├── AdminUsers.jsx
+│           ├── AdminContent.jsx
+│           └── AdminCourseView.jsx
+└── docs/                     # VitePress documentation
+    ├── .vitepress/
+    ├── guide/
+    ├── reference/
+    ├── index.md
+    └── roadmap.md
 ```
 
 ---
@@ -107,6 +113,22 @@ npm run dev
 ```
 
 The schema is applied automatically on first Docker start via `database/schema.sql`. Default credentials and mock data can be seeded from SQL files during initialization.
+
+---
+
+## Documentation
+
+Project documentation is stored in the `docs/` folder and built with VitePress.
+
+To run the docs locally:
+
+```powershell
+cd docs
+npm install
+npm run docs:dev
+```
+
+This starts the documentation site in development mode with live reload.
 
 ---
 
@@ -158,6 +180,7 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [x] Markdown support for lesson content
 - [x] Markdown style polishing
 - [x] Custom callouts (tip, warning, caution, note, etc.)
+- [x] Project documentation site with VitePress
 - [ ] Lesson import from `.md` files
 - [x] Search across content and users
 - [ ] Statistics page with charts and trends
@@ -173,6 +196,8 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [ ] Admin guide for writing lessons in Markdown
 - [ ] General UI polish
 - [ ] Tests
+
+---
 
 ## Additional
 
