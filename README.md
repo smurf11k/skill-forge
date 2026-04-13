@@ -6,7 +6,7 @@ An internal employee training platform built for engineering teams. Employees wo
 
 ## Stack
 
-**Frontend** — React 19 + Vite, shadcn/ui, Tailwind CSS v3, @dnd-kit (drag reorder), axios, react-router-dom, react-markdown, remark-gfm, @uiw/react-md-editor
+**Frontend** — React 19 + Vite, shadcn/ui, Tailwind CSS v3, @dnd-kit (drag reorder), axios, react-router-dom, react-markdown, remark-gfm, remark-github-blockquote-alert, @uiw/react-md-editor
 
 **Backend** — Laravel 11, Sanctum (token auth), PostgreSQL
 
@@ -21,6 +21,8 @@ An internal employee training platform built for engineering teams. Employees wo
 Employees log in and see a personal dashboard showing their progress across all courses — how many are completed, in progress, or not started yet, along with their average quiz score. Each course is made up of lessons and quizzes mixed together in a defined order. Lessons are marked complete when the employee clicks Next, and quizzes are scored immediately on submission. A quiz must be passed with 80% or higher to count toward course completion. Failed attempts are recorded but do not block progress, so the employee can retry. Once all lessons are read and all quizzes are passed, the course is marked complete.
 
 Lesson content supports Markdown formatting and is rendered directly in the course view.
+
+Extended Markdown features are supported, including GitHub-style callouts (e.g. TIP, NOTE, WARNING, CAUTION). These are parsed using `remark-github-blockquote-alert` and styled manually to match the application's design system.
 
 ### For Admins
 
@@ -40,7 +42,8 @@ Login is token-based via Laravel Sanctum. Admins are redirected to `/admin` on l
 skill-forge-pr/
 ├── docker-compose.yml
 ├── database/
-│   └── schema.sql
+│   ├── schema.sql
+│   └── mock_data.sql
 ├── backend/                  # Laravel 11
 │   ├── app/Http/Controllers/
 │   │   ├── AuthController.php
@@ -153,10 +156,10 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [x] User management (role change, delete)
 - [x] Mock and seed data
 - [x] Markdown support for lesson content
-- [ ] Markdown style polishing
-- [ ] Custom callouts (tip, warning, danger, info, steps, etc.)
+- [x] Markdown style polishing
+- [x] Custom callouts (tip, warning, caution, note, etc.)
 - [ ] Lesson import from `.md` files
-- [ ] Search across content and users
+- [x] Search across content and users
 - [ ] Statistics page with charts and trends
 - [ ] Password reset
 - [ ] Email notifications

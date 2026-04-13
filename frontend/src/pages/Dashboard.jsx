@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
 import { StatusBadge, ProgressBar, ScoreText } from "../components/StatusBadge";
+import StatCard from "../components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -138,16 +139,7 @@ export default function Dashboard() {
               stats.avgScore !== null ? `${stats.avgScore}%` : "—",
             ],
           ].map(([label, value]) => (
-            <Card key={label}>
-              <CardHeader className="pb-1">
-                <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {label}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">{value}</p>
-              </CardContent>
-            </Card>
+            <StatCard key={label} label={label} value={value} />
           ))}
         </div>
 

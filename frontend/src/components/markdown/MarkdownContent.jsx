@@ -1,64 +1,129 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkGithubBlockquoteAlert from "remark-github-blockquote-alert";
 
 export default function MarkdownContent({ content }) {
   return (
-    <div className="markdown-body text-sm leading-7">
+    <div className="markdown-body text-sm leading-7 text-foreground">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkGithubBlockquoteAlert]}
         components={{
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold tracking-tight mb-4 mt-8 first:mt-0">
+            <h1 className="mt-10 mb-5 text-4xl font-bold tracking-tight text-foreground first:mt-0">
               {children}
             </h1>
           ),
+
           h2: ({ children }) => (
-            <h2 className="text-2xl font-semibold tracking-tight mb-3 mt-8 border-b pb-2">
+            <h2 className="mt-9 mb-4 text-3xl font-semibold tracking-tight text-foreground">
               {children}
             </h2>
           ),
+
           h3: ({ children }) => (
-            <h3 className="text-xl font-semibold mb-3 mt-6">{children}</h3>
+            <h3 className="mt-7 mb-3 text-2xl font-semibold text-foreground">
+              {children}
+            </h3>
           ),
+
           h4: ({ children }) => (
-            <h4 className="text-lg font-semibold mb-2 mt-5">{children}</h4>
+            <h4 className="mt-6 mb-2 text-xl font-semibold text-foreground">
+              {children}
+            </h4>
           ),
-          p: ({ children }) => (
-            <p className="mb-4 text-foreground/90">{children}</p>
-          ),
+
+          p: ({ className: rawClass, children, ...props }) => {
+            if ((rawClass || "").includes("markdown-alert-title")) {
+              return (
+                <p
+                  className={`${rawClass} [&>svg]:size-4 [&>svg]:inline [&>svg]:mr-2`}
+                  {...props}
+                >
+                  {children}
+                </p>
+              );
+            }
+            return <p className="mb-4 text-muted-foreground">{children}</p>;
+          },
+
           a: ({ href, children }) => (
             <a
               href={href}
               target="_blank"
               rel="noreferrer"
-              className="text-primary underline underline-offset-4 hover:opacity-80"
+              className="font-medium text-primary underline underline-offset-4 hover:opacity-80"
             >
               {children}
             </a>
           ),
+
           ul: ({ children }) => (
-            <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>
+            <ul className="mb-4 list-disc space-y-1 pl-6 marker:text-muted-foreground">
+              {children}
+            </ul>
           ),
+
           ol: ({ children }) => (
-            <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>
+            <ol className="mb-4 list-decimal space-y-1 pl-6 marker:text-muted-foreground">
+              {children}
+            </ol>
           ),
+
           li: ({ children }) => <li className="pl-1">{children}</li>,
+
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-muted-foreground/30 pl-4 italic text-muted-foreground my-4">
+            <blockquote className="my-5 border-l-4 border-primary/40 bg-muted/30 py-3 pl-4 text-foreground">
               {children}
             </blockquote>
           ),
-          hr: () => <hr className="my-8 border-border" />,
-          inlineCode: ({ children }) => (
-            <code className="rounded bg-muted px-1.5 py-0.5 text-[0.9em] font-mono">
-              {children}
-            </code>
-          ),
-          code({ inline, className, children, ...props }) {
-            if (inline) {
+
+          div: ({ className: rawClass, children, ...props }) => {
+            const classes = (rawClass || "").split(" ");
+
+            const isTip = classes.includes("markdown-alert-tip");
+            const isNote = classes.includes("markdown-alert-note");
+            const isWarning = classes.includes("markdown-alert-warning");
+            const isCaution = classes.includes("markdown-alert-caution");
+
+            const isAlert = isTip || isNote || isWarning || isCaution;
+
+            if (!isAlert)
+              return (
+                <div className={rawClass} {...props}>
+                  {children}
+                </div>
+              );
+
+            let wrapperClass = "";
+            if (isTip)
+              wrapperClass =
+                "my-5 border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-100 rounded [&_.markdown-alert-title_svg]:text-green-400 [&_.markdown-alert-title_svg]:fill-green-400";
+            if (isNote)
+              wrapperClass =
+                "my-5 border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sky-100 rounded [&_.markdown-alert-title_svg]:text-sky-400 [&_.markdown-alert-title_svg]:fill-sky-400";
+            if (isWarning)
+              wrapperClass =
+                "my-5 border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-orange-100 rounded [&_.markdown-alert-title_svg]:text-orange-400 [&_.markdown-alert-title_svg]:fill-orange-400";
+            if (isCaution)
+              wrapperClass =
+                "my-5 border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-100 rounded [&_.markdown-alert-title_svg]:text-red-400 [&_.markdown-alert-title_svg]:fill-red-400";
+
+            return (
+              <div className={wrapperClass} {...props}>
+                {children}
+              </div>
+            );
+          },
+
+          hr: () => <hr className="my-8 border-border/60" />,
+
+          code({ className, children, ...props }) {
+            const isInline = !className;
+
+            if (isInline) {
               return (
                 <code
-                  className="rounded bg-muted px-1.5 py-0.5 text-[0.9em] font-mono"
+                  className="border border-border bg-muted/80 px-1.5 py-0.5 font-mono text-[0.85em] text-foreground"
                   {...props}
                 >
                   {children}
@@ -67,13 +132,14 @@ export default function MarkdownContent({ content }) {
             }
 
             return (
-              <pre className="mb-4 overflow-x-auto rounded-lg border bg-muted p-4">
-                <code className="font-mono text-sm" {...props}>
+              <pre className="mb-4 overflow-x-auto border border-border bg-muted/80 px-4 py-3 text-sm leading-6">
+                <code className="font-mono text-foreground" {...props}>
                   {children}
                 </code>
               </pre>
             );
           },
+
           table: ({ children }) => (
             <div className="mb-6 overflow-x-auto">
               <table className="w-full border-collapse border border-border text-sm">
@@ -81,14 +147,17 @@ export default function MarkdownContent({ content }) {
               </table>
             </div>
           ),
+
           thead: ({ children }) => (
             <thead className="bg-muted/50">{children}</thead>
           ),
+
           th: ({ children }) => (
             <th className="border border-border px-3 py-2 text-left font-semibold">
               {children}
             </th>
           ),
+
           td: ({ children }) => (
             <td className="border border-border px-3 py-2 align-top">
               {children}

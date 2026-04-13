@@ -10,7 +10,7 @@ import {
 } from "../components/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import StatCard from "../components/StatCard";
 import { useState } from "react";
 
 export default function Results() {
@@ -67,14 +67,7 @@ export default function Results() {
             ["Quizzes Taken", stats.quizzesTaken],
             ["Avg Score", stats.avgScore !== null ? `${stats.avgScore}%` : "—"],
           ].map(([label, value]) => (
-            <Card key={label}>
-              <CardContent className="pt-4">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                  {label}
-                </p>
-                <p className="text-3xl font-bold mt-1">{value}</p>
-              </CardContent>
-            </Card>
+            <StatCard key={label} label={label} value={value} />
           ))}
         </div>
 

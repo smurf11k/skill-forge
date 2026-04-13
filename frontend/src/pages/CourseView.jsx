@@ -206,7 +206,6 @@ export default function CourseView() {
 
   const [completedLessonIds, setCompletedLessonIds] = useState(new Set());
   const [userResults, setUserResults] = useState([]);
-  const [completedQuizIds, setCompletedQuizIds] = useState(new Set());
 
   const [quizActive, setQuizActive] = useState(false);
   const [lockWarning, setLockWarning] = useState(false);
@@ -243,19 +242,6 @@ export default function CourseView() {
   const loadResults = async () => {
     const { data } = await api.get(`/results/${user.id}`);
     setUserResults(data);
-
-    const passedQuizIds = new Set(
-      data
-        .filter(
-          (r) =>
-            r.quiz_id &&
-            r.total_questions > 0 &&
-            Math.round((r.score / r.total_questions) * 100) >= PASS,
-        )
-        .map((r) => r.quiz_id),
-    );
-
-    setCompletedQuizIds(passedQuizIds);
   };
 
   const loadPage = async () => {
@@ -337,6 +323,19 @@ export default function CourseView() {
   const allQuizzes = items.filter((item) => item._type === "quiz");
   const totalItems = items.length;
 
+  const completedQuizIds = new Set(
+    allQuizzes
+      .filter((quiz) =>
+        userResults.some(
+          (r) =>
+            r.quiz_id === quiz.id &&
+            r.total_questions > 0 &&
+            Math.round((r.score / r.total_questions) * 100) >= PASS,
+        ),
+      )
+      .map((quiz) => quiz.id),
+  );
+
   const doneItems = completedLessonIds.size + completedQuizIds.size;
   const progressPct =
     totalItems === 0 ? 0 : Math.round((doneItems / totalItems) * 100);
@@ -411,7 +410,6 @@ export default function CourseView() {
     try {
       await api.delete(`/results/${user.id}/reset`);
       setCompletedLessonIds(new Set());
-      setCompletedQuizIds(new Set());
       setUserResults([]);
       setQuizActive(false);
 
@@ -539,7 +537,7 @@ export default function CourseView() {
         </aside>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-2xl px-8 py-8 space-y-6">
+          <div className="w-full px-8 py-8 space-y-6">
             {!activeItem && (
               <p className="text-sm text-muted-foreground">
                 No content available yet.

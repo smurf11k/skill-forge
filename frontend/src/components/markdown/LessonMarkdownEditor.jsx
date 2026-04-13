@@ -6,7 +6,7 @@ import "@uiw/react-md-editor/markdown-editor.css";
 
 function MarkdownPreview({ value }) {
   return (
-    <div className="min-h-[400px] rounded-md border bg-background p-6">
+    <div className="min-h-[400px] rounded-lg border border-border bg-background p-6 shadow-sm">
       {value?.trim() ? (
         <MarkdownContent content={value} />
       ) : (
@@ -41,7 +41,7 @@ export default function LessonMarkdownEditor({ value, onChange }) {
       </div>
 
       {tab === "write" ? (
-        <div data-color-mode="light">
+        <div data-color-mode="dark">
           <MDEditor
             value={value}
             onChange={(next) => onChange(next ?? "")}
@@ -49,6 +49,7 @@ export default function LessonMarkdownEditor({ value, onChange }) {
             hideToolbar
             visibleDragbar={false}
             height={400}
+            className="!bg-background !text-foreground"
             textareaProps={{
               placeholder: "Write the lesson in markdown...",
             }}
