@@ -26,7 +26,7 @@ Extended Markdown features are supported, including GitHub-style callouts (e.g. 
 
 ### For Admins
 
-Admins get a separate dashboard showing platform-wide stats — average completion rate across all employees, at-risk employees (below 50% progress), and per-course completion rates. The Team Progress page gives a per-employee, per-course breakdown including lessons completed, quizzes passed, scores, and status. The Users page lets admins change roles and remove users.
+Admins get a separate dashboard showing platform-wide stats — average completion rate across all employees, at-risk employees (below 50% progress), and per-course completion rates. The Team Progress page gives a per-employee, per-course breakdown including lessons completed, quizzes passed, scores, and status. The Users page now has two responsibilities: managing active users (role changes and deletion) and managing pending invites (create, resend, revoke).
 
 Content is managed through the Manage Content page. Courses, lessons, and quizzes can be created, edited, published, or saved as drafts. Draft content is invisible to employees. Inside a dedicated course editor, lessons and quizzes appear in a unified ordered list that can be reordered by dragging. Quiz questions are managed inline on the quiz edit page. Lesson content can be authored in Markdown using a write/preview editor.
 
@@ -34,9 +34,11 @@ Content is managed through the Manage Content page. Courses, lessons, and quizze
 
 Login is token-based via Laravel Sanctum. Admins are redirected to `/admin` on login, employees to `/`. Admin-only routes are protected on both the frontend (redirect if not admin) and backend (403 if not admin). Draft courses are also blocked from employee access.
 
+New users are onboarded through invite tokens. Admins can create a pending invite, optionally send the email immediately, and the recipient completes account creation on the public `/accept-invite` page. Invite tokens can expire, be revoked, or be resent with a fresh expiry window.
+
 ---
 
-## Project Structure
+## Architecture
 
 ```txt
 skill-forge-pr/
@@ -48,6 +50,7 @@ skill-forge-pr/
 │   ├── app/Http/Controllers/
 │   │   ├── AuthController.php
 │   │   ├── CourseController.php
+│   │   ├── InviteController.php
 │   │   ├── LessonController.php
 │   │   ├── LessonProgressController.php
 │   │   ├── QuizController.php
@@ -67,6 +70,7 @@ skill-forge-pr/
 │       │       └── MarkdownContent.jsx
 │       └── pages/
 │           ├── Login.jsx
+│           ├── AcceptInvite.jsx
 │           ├── Dashboard.jsx
 │           ├── Courses.jsx
 │           ├── CourseView.jsx
@@ -83,6 +87,20 @@ skill-forge-pr/
     ├── index.md
     └── roadmap.md
 ```
+
+### Backend Responsibilities
+
+- `AuthController` handles login/logout and Sanctum token issuance.
+- `InviteController` manages the invite lifecycle: list pending invites, create invites, resend/revoke them, validate public invite tokens, and convert accepted invites into real user accounts.
+- `UserController` serves admin-facing user management plus platform-level stats and team progress aggregation.
+- Course, lesson, quiz, question, result, and progress controllers implement the training workflow and completion tracking.
+
+### Frontend Responsibilities
+
+- `App.jsx` wires public, employee, and admin routes, including the public invite acceptance screen.
+- `pages/AdminUsers.jsx` combines active-user management with pending-invite management in a tabbed admin UI.
+- `pages/AcceptInvite.jsx` validates an invite token, collects the new user's name/password, and signs them in immediately after account creation.
+- `api/auth.js` centralizes axios configuration, bearer token attachment, and auth persistence in local storage.
 
 ---
 
@@ -102,6 +120,8 @@ composer install
 cp .env.example .env
 # Set DB_HOST=127.0.0.1, DB_PORT=5432, DB_DATABASE=skillforge
 # DB_USERNAME=skillforge_user, DB_PASSWORD=skillforge_pass
+# Set FRONTEND_URL=http://localhost:5173
+# Configure MAIL_* if you want invite emails to be sent instead of logged
 
 # 4. Start the backend
 php artisan serve
@@ -151,6 +171,12 @@ This starts the documentation site in development mode with live reload.
 | GET                 | `/api/users`                  | All users (admin only)                     |
 | PUT                 | `/api/users/{id}/role`        | Change user role (admin only)              |
 | DELETE              | `/api/users/{id}`             | Remove user (admin only)                   |
+| GET                 | `/api/invites/{token}`        | Resolve a public invite token              |
+| POST                | `/api/invites/accept`         | Accept invite and create account           |
+| GET                 | `/api/invites`                | List pending invites (admin only)          |
+| POST                | `/api/invites`                | Create invite (admin only)                 |
+| POST                | `/api/invites/{id}/resend`    | Refresh and resend invite (admin only)     |
+| DELETE              | `/api/invites/{id}`           | Revoke invite (admin only)                 |
 | GET                 | `/api/admin/stats`            | Platform-wide stats (admin only)           |
 | GET                 | `/api/admin/team-progress`    | All results + lesson progress (admin only) |
 
@@ -184,7 +210,7 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [x] Project documentation site with VitePress
 - [x] Search across content and users
 - [ ] Statistics page with charts and trends
-- [ ] Email notifications
+- [ ] General email notifications
 - [x] User invitation by email
 - [ ] Password reset
 - [ ] Modules or categories for courses
