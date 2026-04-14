@@ -9,6 +9,23 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP           DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS user_invites (
+    id              BIGSERIAL PRIMARY KEY,
+    email           VARCHAR(150) NOT NULL,
+    role            VARCHAR(20)  NOT NULL CHECK (role IN ('admin', 'employee')),
+    token           VARCHAR(100) NOT NULL UNIQUE,
+    invited_by      BIGINT       NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at      TIMESTAMP    NOT NULL,
+    accepted_at     TIMESTAMP    NULL,
+    revoked_at      TIMESTAMP    NULL,
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS user_invites_email_active_unique
+ON user_invites (LOWER(email))
+WHERE accepted_at IS NULL AND revoked_at IS NULL;
+
 CREATE TABLE IF NOT EXISTS personal_access_tokens (
     id             BIGSERIAL PRIMARY KEY,
     tokenable_type VARCHAR(255) NOT NULL,
@@ -116,6 +133,8 @@ CREATE INDEX IF NOT EXISTS idx_results_quiz_id
     ON results(quiz_id);
 
 -- Seed default users (passwords are bcrypt hashed)
+-- password: admin123
+
 INSERT INTO users (name, email, password, role)
 VALUES (
     'Admin',
@@ -124,6 +143,8 @@ VALUES (
     'admin'
 )
 ON CONFLICT (email) DO NOTHING;
+
+-- password: employee123 
 
 INSERT INTO users (name, email, password, role)
 VALUES (

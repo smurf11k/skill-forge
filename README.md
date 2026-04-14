@@ -180,22 +180,20 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [x] Markdown support for lesson content
 - [x] Markdown style polishing
 - [x] Custom callouts (tip, warning, caution, note, etc.)
-- [x] Project documentation site with VitePress
 - [ ] Lesson import from `.md` files
+- [x] Project documentation site with VitePress
 - [x] Search across content and users
 - [ ] Statistics page with charts and trends
-- [ ] Password reset
 - [ ] Email notifications
-- [ ] User invitation by email
+- [x] User invitation by email
+- [ ] Password reset
 - [ ] Modules or categories for courses
 - [ ] Multiple correct answers for quiz questions
 - [ ] Estimated durations for courses, lessons, and quizzes
 - [ ] Timed quizzes
 - [ ] Course deadlines
-- [ ] First-visit onboarding tutorial
-- [ ] Admin guide for writing lessons in Markdown
 - [ ] General UI polish
-- [ ] Tests
+- [ ] Tests (unit, feature)
 
 ---
 

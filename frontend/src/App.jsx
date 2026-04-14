@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminTeamProgress from "./pages/AdminTeamProgress";
 import AdminUsers from "./pages/AdminUsers";
 import AdminContent from "./pages/AdminContent";
+import AcceptInvite from "./pages/AcceptInvite";
 import { getToken, getUser } from "./api/auth";
 
 function Protected({ children }) {
@@ -40,6 +41,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
+        <Route path="/accept-invite" element={<AcceptInvite />} />
 
         {/* Employee routes */}
         <Route
