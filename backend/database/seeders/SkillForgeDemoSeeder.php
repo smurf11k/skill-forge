@@ -87,23 +87,342 @@ class SkillForgeDemoSeeder extends Seeder
         $now = now();
 
         $lessons = [
-            ['course_title' => 'Git & Collaboration Basics', 'title' => 'Why Version Control Matters', 'content' => 'Version control lets a team track changes, collaborate safely, and recover from mistakes. In real projects it also supports review, accountability, and parallel work.', 'order_number' => 0, 'status' => 'published'],
-            ['course_title' => 'Git & Collaboration Basics', 'title' => 'Branching Strategy', 'content' => 'Teams often use feature branches, short-lived work branches, and protected main branches. A clear branch strategy reduces conflicts and release risk.', 'order_number' => 1, 'status' => 'published'],
-            ['course_title' => 'Git & Collaboration Basics', 'title' => 'Pull Requests and Reviews', 'content' => 'Pull requests are a checkpoint for code quality, shared understanding, and risk reduction. Good reviews are constructive, specific, and timely.', 'order_number' => 3, 'status' => 'published'],
-            ['course_title' => 'Secure Coding Fundamentals', 'title' => 'Common Web Risks', 'content' => 'Engineers should recognize common risks such as injection, broken access control, insecure secrets handling, and unsafe input assumptions.', 'order_number' => 0, 'status' => 'published'],
-            ['course_title' => 'Secure Coding Fundamentals', 'title' => 'Input Validation', 'content' => 'Validation should happen server-side for all untrusted input. Validation and authorization solve different problems and should not be confused.', 'order_number' => 1, 'status' => 'published'],
-            ['course_title' => 'Secure Coding Fundamentals', 'title' => 'Secrets and Credentials', 'content' => 'Credentials should never be hardcoded in source code. Use environment variables, secret managers, and rotation practices.', 'order_number' => 3, 'status' => 'published'],
-            ['course_title' => 'Docker Essentials', 'title' => 'Containers vs Virtual Machines', 'content' => 'Containers share the host kernel and are lighter than virtual machines. They are useful for portability and consistent local environments.', 'order_number' => 0, 'status' => 'published'],
-            ['course_title' => 'Docker Essentials', 'title' => 'Images, Containers, and Layers', 'content' => 'Images are built from layers, and containers are runnable instances of images. Layered builds improve caching and reuse.', 'order_number' => 1, 'status' => 'published'],
-            ['course_title' => 'Docker Essentials', 'title' => 'Docker Compose Basics', 'content' => 'Compose helps define multi-service setups with shared networking, volumes, and environment configuration for development.', 'order_number' => 3, 'status' => 'published'],
-            ['course_title' => 'REST API Design', 'title' => 'Resources and Endpoints', 'content' => 'REST APIs should model domain resources clearly. Endpoint design should be predictable and consistent across the application.', 'order_number' => 0, 'status' => 'published'],
-            ['course_title' => 'REST API Design', 'title' => 'HTTP Methods and Status Codes', 'content' => 'Use HTTP methods according to intent and return clear status codes so clients can reason about success and failure accurately.', 'order_number' => 1, 'status' => 'published'],
-            ['course_title' => 'REST API Design', 'title' => 'Validation and Error Responses', 'content' => 'Validation errors should be structured, readable, and consistent. Clients benefit from predictable response formats.', 'order_number' => 3, 'status' => 'published'],
-            ['course_title' => 'Incident Response Basics', 'title' => 'What Counts as an Incident', 'content' => 'Incidents include service outages, severe degradations, data exposure risks, and other production issues affecting users or business operations.', 'order_number' => 0, 'status' => 'published'],
-            ['course_title' => 'Incident Response Basics', 'title' => 'Triage and Prioritization', 'content' => 'Early incident handling focuses on severity, blast radius, time sensitivity, and user impact. Clear prioritization reduces chaos.', 'order_number' => 1, 'status' => 'published'],
-            ['course_title' => 'Incident Response Basics', 'title' => 'Communication During Incidents', 'content' => 'Clear updates reduce confusion. Internal and external communication should be factual, timely, and calm.', 'order_number' => 3, 'status' => 'published'],
-            ['course_title' => 'Frontend Accessibility Draft', 'title' => 'Semantic HTML Basics', 'content' => 'Use semantic structure to improve accessibility, navigation, and assistive technology support.', 'order_number' => 0, 'status' => 'draft'],
-            ['course_title' => 'Frontend Accessibility Draft', 'title' => 'Keyboard Navigation', 'content' => 'Interfaces should remain usable without a mouse and should provide visible focus states.', 'order_number' => 1, 'status' => 'draft'],
+            [
+                'course_title' => 'Git & Collaboration Basics',
+                'title' => 'Why Version Control Matters',
+                'content' => <<<'MD'
+# Why Version Control Matters
+
+Version control helps a team track changes, collaborate safely, and recover from mistakes.
+
+- Track progress over time
+- Review work before merge
+- Recover from bad changes quickly
+
+> [!TIP]
+> Keep commits small and descriptive so review stays readable.
+
+Try a quick sanity check with `git status` before you commit.
+MD,
+                'order_number' => 0,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Git & Collaboration Basics',
+                'title' => 'Branching Strategy',
+                'content' => <<<'MD'
+## Branching Strategy
+
+Use short-lived feature branches and keep them focused on one change.
+
+```bash
+git checkout -b feature/login-flow
+```
+
+> [!NOTE]
+> A branch should be easy to merge or discard without affecting the main line of work.
+MD,
+                'order_number' => 1,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Git & Collaboration Basics',
+                'title' => 'Pull Requests and Reviews',
+                'content' => <<<'MD'
+### Pull Requests and Reviews
+
+Pull requests are a checkpoint for code quality, shared understanding, and risk reduction.
+
+- Open them early
+- Add context in the description
+- Review for correctness before style
+
+> [!WARNING]
+> Merging without review can spread mistakes quickly.
+MD,
+                'order_number' => 3,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Secure Coding Fundamentals',
+                'title' => 'Common Web Risks',
+                'content' => <<<'MD'
+# Common Web Risks
+
+Engineers should recognize the risks that show up most often in web apps.
+
+- Injection
+- Broken access control
+- Unsafe assumptions about user input
+
+> [!CAUTION]
+> Never trust input just because it came from your own frontend.
+MD,
+                'order_number' => 0,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Secure Coding Fundamentals',
+                'title' => 'Input Validation',
+                'content' => <<<'MD'
+## Input Validation
+
+Validation should happen server-side for all untrusted input.
+
+```php
+$request->validate([
+        'email' => ['required', 'email'],
+]);
+```
+
+> [!TIP]
+> Validation and authorization solve different problems and should be handled separately.
+MD,
+                'order_number' => 1,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Secure Coding Fundamentals',
+                'title' => 'Secrets and Credentials',
+                'content' => <<<'MD'
+### Secrets and Credentials
+
+Credentials should never be hardcoded in source code.
+
+```env
+APP_KEY=base64:...
+DB_PASSWORD=secret
+```
+
+> [!WARNING]
+> Store secrets in environment variables or a secret manager, not in the repository.
+MD,
+                'order_number' => 3,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Docker Essentials',
+                'title' => 'Containers vs Virtual Machines',
+                'content' => <<<'MD'
+# Containers vs Virtual Machines
+
+Containers share the host kernel and are lighter than virtual machines.
+
+- Faster startup
+- Easier local setup
+- Better environment consistency
+
+> [!NOTE]
+> Use containers when you want repeatable development environments.
+MD,
+                'order_number' => 0,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Docker Essentials',
+                'title' => 'Images, Containers, and Layers',
+                'content' => <<<'MD'
+## Images, Containers, and Layers
+
+Images are built from layers, and containers are runnable instances of images.
+
+```bash
+docker build -t skillforge-app .
+```
+
+> [!TIP]
+> Layer caching can speed up rebuilds a lot when dependencies do not change.
+MD,
+                'order_number' => 1,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Docker Essentials',
+                'title' => 'Docker Compose Basics',
+                'content' => <<<'MD'
+### Docker Compose Basics
+
+Compose helps define multi-service setups with shared networking, volumes, and environment configuration.
+
+```yaml
+services:
+    app:
+        build: .
+```
+
+> [!NOTE]
+> Compose is ideal for local stacks and demo environments.
+MD,
+                'order_number' => 3,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'REST API Design',
+                'title' => 'Resources and Endpoints',
+                'content' => <<<'MD'
+# Resources and Endpoints
+
+REST APIs should model domain resources clearly.
+
+- `/courses`
+- `/lessons`
+- `/quizzes`
+
+> [!TIP]
+> Endpoint names should stay predictable across the API.
+MD,
+                'order_number' => 0,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'REST API Design',
+                'title' => 'HTTP Methods and Status Codes',
+                'content' => <<<'MD'
+## HTTP Methods and Status Codes
+
+Use HTTP methods according to intent and return clear status codes.
+
+```http
+POST /api/courses
+201 Created
+```
+
+> [!NOTE]
+> Clients rely on status codes to understand whether a request succeeded, failed, or needs correction.
+MD,
+                'order_number' => 1,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'REST API Design',
+                'title' => 'Validation and Error Responses',
+                'content' => <<<'MD'
+### Validation and Error Responses
+
+Validation errors should be structured, readable, and consistent.
+
+```json
+{
+    "error": "Validation failed"
+}
+```
+
+> [!WARNING]
+> Keep error shapes stable so frontend handling stays simple.
+MD,
+                'order_number' => 3,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Incident Response Basics',
+                'title' => 'What Counts as an Incident',
+                'content' => <<<'MD'
+# What Counts as an Incident
+
+Incidents include service outages, severe degradations, data exposure risks, and production issues affecting users or business operations.
+
+- Availability problems
+- Security exposure
+- Broken critical workflows
+
+> [!CAUTION]
+> Treat security incidents as urgent even when the impact looks small at first.
+MD,
+                'order_number' => 0,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Incident Response Basics',
+                'title' => 'Triage and Prioritization',
+                'content' => <<<'MD'
+## Triage and Prioritization
+
+Early incident handling focuses on severity, blast radius, time sensitivity, and user impact.
+
+> [!TIP]
+> Stabilize first, then investigate the root cause.
+MD,
+                'order_number' => 1,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Incident Response Basics',
+                'title' => 'Communication During Incidents',
+                'content' => <<<'MD'
+### Communication During Incidents
+
+Clear updates reduce confusion.
+
+> [!NOTE]
+> Internal and external communication should be factual, timely, and calm.
+
+- What happened
+- What is impacted
+- What happens next
+MD,
+                'order_number' => 3,
+                'status' => 'published'
+            ],
+            [
+                'course_title' => 'Frontend Accessibility Draft',
+                'title' => 'Semantic HTML Basics',
+                'content' => <<<'MD'
+# Semantic HTML Basics
+
+Use semantic structure to improve accessibility, navigation, and assistive technology support.
+
+```html
+<main>
+    <article>
+```
+
+> [!TIP]
+> Landmarks help screen reader users understand page structure faster.
+MD,
+                'order_number' => 0,
+                'status' => 'draft'
+            ],
+            [
+                'course_title' => 'Frontend Accessibility Draft',
+                'title' => 'Keyboard Navigation',
+                'content' => <<<'MD'
+## Keyboard Navigation
+
+Interfaces should remain usable without a mouse and should provide visible focus states.
+
+- Tab order should be logical
+- Interactive elements should be reachable
+- Focus should never disappear
+
+> [!WARNING]
+> Do not trap keyboard users inside one widget or dialog.
+MD,
+                'order_number' => 1,
+                'status' => 'draft'
+            ],
+            [
+                'course_title' => 'Frontend Accessibility Draft',
+                'title' => 'Markdown Callout Playground',
+                'content' => <<<'MD'
+# Markdown Callout Playground
+
+This lesson exists only to show the renderer's markdown and alert styling in one place.
+
+> [!TIP]
+> Use callouts to highlight practical advice or shortcuts.
+
+> [!NOTE]
+> Notes work well for clarifying details that should not interrupt the main flow.
+
+> [!WARNING]
+> Warnings are best reserved for behavior that can surprise a learner.
+
+> [!CAUTION]
+> Caution blocks should call out irreversible or risky actions.
+MD,
+                'order_number' => 2,
+                'status' => 'draft'
+            ],
         ];
 
         foreach ($lessons as $lesson) {

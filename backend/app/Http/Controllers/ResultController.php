@@ -9,7 +9,6 @@ class ResultController extends Controller
 {
     public function byUser(Request $request, string $userId)
     {
-        // Employees can only see their own results
         if ($request->user()->role !== 'admin' && $request->user()->id != $userId) {
             return response()->json(['error' => 'Forbidden'], 403);
         }

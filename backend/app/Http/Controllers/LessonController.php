@@ -3,51 +3,42 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class LessonController extends Controller
 {
     public function byCourse(Request $request, string $courseId)
     {
-        $courseQuery = DB::table('courses')->where('id', $courseId);
-
-        if ($request->user()->role !== 'admin') {
-            $courseQuery->where('status', 'published');
-        }
+        $courseQuery = $this->table('courses')->where('id', $courseId);
+        $this->publishedOnlyForNonAdmin($request, $courseQuery, 'status');
 
         $course = $courseQuery->first();
 
         if (!$course) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        $query = DB::table('lessons')
+        $query = $this->table('lessons')
             ->where('course_id', $courseId)
             ->orderBy('order_number');
 
-        if ($request->user()->role !== 'admin') {
-            $query->where('status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $query, 'status');
 
         return response()->json($query->get());
     }
 
     public function show(Request $request, string $id)
     {
-        $query = DB::table('lessons')
+        $query = $this->table('lessons')
             ->join('courses', 'lessons.course_id', '=', 'courses.id')
             ->where('lessons.id', $id)
             ->select('lessons.*');
 
-        if ($request->user()->role !== 'admin') {
-            $query->where('courses.status', 'published')
-                ->where('lessons.status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $query, 'courses.status', 'lessons.status');
 
         $lesson = $query->first();
 
         if (!$lesson) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
         return response()->json($lesson);
@@ -55,8 +46,8 @@ class LessonController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
         $request->validate([
@@ -66,11 +57,11 @@ class LessonController extends Controller
             'status' => 'in:published,draft',
         ]);
 
-        $maxOrder = DB::table('lessons')
+        $maxOrder = $this->table('lessons')
             ->where('course_id', $request->course_id)
             ->max('order_number');
 
-        $id = DB::table('lessons')->insertGetId([
+        $id = $this->table('lessons')->insertGetId([
             'course_id' => $request->course_id,
             'title' => $request->title,
             'content' => $request->input('content'),
@@ -85,14 +76,14 @@ class LessonController extends Controller
 
     public function update(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $lesson = DB::table('lessons')->where('id', $id)->first();
+        $lesson = $this->findById('lessons', $id);
 
         if (!$lesson) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
         $request->validate([
@@ -101,7 +92,7 @@ class LessonController extends Controller
             'status' => 'nullable|in:published,draft',
         ]);
 
-        DB::table('lessons')->where('id', $id)->update([
+        $this->table('lessons')->where('id', $id)->update([
             'title' => $request->title ?? $lesson->title,
             'content' => $request->has('content') ? $request->input('content') : $lesson->content,
             'status' => $request->input('status', $lesson->status),
@@ -113,25 +104,25 @@ class LessonController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $lesson = DB::table('lessons')->where('id', $id)->first();
+        $lesson = $this->findById('lessons', $id);
 
         if (!$lesson) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        DB::table('lessons')->where('id', $id)->delete();
+        $this->table('lessons')->where('id', $id)->delete();
 
         return response()->json(['deleted' => true]);
     }
 
     public function reorder(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
         $request->validate([
@@ -141,7 +132,7 @@ class LessonController extends Controller
         ]);
 
         foreach ($request->items as $item) {
-            DB::table('lessons')
+            $this->table('lessons')
                 ->where('id', $item['id'])
                 ->update([
                     'order_number' => $item['order_number'],

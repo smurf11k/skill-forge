@@ -3,51 +3,42 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
     public function byCourse(Request $request, string $courseId)
     {
-        $courseQuery = DB::table('courses')->where('id', $courseId);
-
-        if ($request->user()->role !== 'admin') {
-            $courseQuery->where('status', 'published');
-        }
+        $courseQuery = $this->table('courses')->where('id', $courseId);
+        $this->publishedOnlyForNonAdmin($request, $courseQuery, 'status');
 
         $course = $courseQuery->first();
 
         if (!$course) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        $query = DB::table('quizzes')
+        $query = $this->table('quizzes')
             ->where('course_id', $courseId)
             ->orderBy('order_number');
 
-        if ($request->user()->role !== 'admin') {
-            $query->where('status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $query, 'status');
 
         return response()->json($query->get());
     }
 
     public function show(Request $request, string $id)
     {
-        $query = DB::table('quizzes')
+        $query = $this->table('quizzes')
             ->join('courses', 'quizzes.course_id', '=', 'courses.id')
             ->where('quizzes.id', $id)
             ->select('quizzes.*');
 
-        if ($request->user()->role !== 'admin') {
-            $query->where('courses.status', 'published')
-                ->where('quizzes.status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $query, 'courses.status', 'quizzes.status');
 
         $quiz = $query->first();
 
         if (!$quiz) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
         return response()->json($quiz);
@@ -55,35 +46,31 @@ class QuizController extends Controller
 
     public function questions(Request $request, string $id)
     {
-        $quizQuery = DB::table('quizzes')
+        $quizQuery = $this->table('quizzes')
             ->join('courses', 'quizzes.course_id', '=', 'courses.id')
             ->where('quizzes.id', $id)
             ->select('quizzes.*');
 
-        if ($request->user()->role !== 'admin') {
-            $quizQuery->where('courses.status', 'published')
-                ->where('quizzes.status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $quizQuery, 'courses.status', 'quizzes.status');
 
         $quiz = $quizQuery->first();
 
         if (!$quiz) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        $questions = DB::table('questions')
+        $questions = $this->table('questions')
             ->where('quiz_id', $id)
             ->orderBy('order_number')
-            ->get()
-            ->map(fn($q) => [
-                'id' => $q->id,
-                'quiz_id' => $q->quiz_id,
-                'question_text' => $q->question_text,
-                'option_a' => $q->option_a,
-                'option_b' => $q->option_b,
-                'option_c' => $q->option_c,
-                'option_d' => $q->option_d,
-                'order_number' => $q->order_number,
+            ->get([
+                'id',
+                'quiz_id',
+                'question_text',
+                'option_a',
+                'option_b',
+                'option_c',
+                'option_d',
+                'order_number',
             ]);
 
         return response()->json($questions);
@@ -91,8 +78,8 @@ class QuizController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
         $request->validate([
@@ -101,11 +88,11 @@ class QuizController extends Controller
             'status' => 'in:published,draft',
         ]);
 
-        $maxOrder = DB::table('quizzes')
+        $maxOrder = $this->table('quizzes')
             ->where('course_id', $request->course_id)
             ->max('order_number');
 
-        $id = DB::table('quizzes')->insertGetId([
+        $id = $this->table('quizzes')->insertGetId([
             'course_id' => $request->course_id,
             'title' => $request->title,
             'order_number' => ($maxOrder ?? -1) + 1,
@@ -119,14 +106,14 @@ class QuizController extends Controller
 
     public function update(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $quiz = DB::table('quizzes')->where('id', $id)->first();
+        $quiz = $this->findById('quizzes', $id);
 
         if (!$quiz) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
         $request->validate([
@@ -134,7 +121,7 @@ class QuizController extends Controller
             'status' => 'nullable|in:published,draft',
         ]);
 
-        DB::table('quizzes')->where('id', $id)->update([
+        $this->table('quizzes')->where('id', $id)->update([
             'title' => $request->title ?? $quiz->title,
             'status' => $request->input('status', $quiz->status),
             'updated_at' => now(),
@@ -145,25 +132,25 @@ class QuizController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $quiz = DB::table('quizzes')->where('id', $id)->first();
+        $quiz = $this->findById('quizzes', $id);
 
         if (!$quiz) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        DB::table('quizzes')->where('id', $id)->delete();
+        $this->table('quizzes')->where('id', $id)->delete();
 
         return response()->json(['deleted' => true]);
     }
 
     public function reorder(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
         $request->validate([
@@ -173,7 +160,7 @@ class QuizController extends Controller
         ]);
 
         foreach ($request->items as $item) {
-            DB::table('quizzes')
+            $this->table('quizzes')
                 ->where('id', $item['id'])
                 ->update([
                     'order_number' => $item['order_number'],
@@ -192,23 +179,20 @@ class QuizController extends Controller
             'answers.*.answer' => 'required|string|in:a,b,c,d',
         ]);
 
-        $quizQuery = DB::table('quizzes')
+        $quizQuery = $this->table('quizzes')
             ->join('courses', 'quizzes.course_id', '=', 'courses.id')
             ->where('quizzes.id', $id)
             ->select('quizzes.*', 'courses.status as course_status');
 
-        if ($request->user()->role !== 'admin') {
-            $quizQuery->where('quizzes.status', 'published')
-                ->where('courses.status', 'published');
-        }
+        $this->publishedOnlyForNonAdmin($request, $quizQuery, 'quizzes.status', 'courses.status');
 
         $quiz = $quizQuery->first();
 
         if (!$quiz) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        $quizQuestions = DB::table('questions')
+        $quizQuestions = $this->table('questions')
             ->where('quiz_id', $id)
             ->orderBy('order_number')
             ->get();
@@ -244,7 +228,7 @@ class QuizController extends Controller
 
         $total = $quizQuestions->count();
 
-        DB::table('results')->insert([
+        $this->table('results')->insert([
             'user_id' => $request->user()->id,
             'course_id' => $quiz->course_id,
             'quiz_id' => $quiz->id,

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DB::table('courses')->orderBy('created_at', 'desc');
+        $query = $this->table('courses')->orderBy('created_at', 'desc');
 
         if ($request->user()->role !== 'admin') {
             $query->where('status', 'published');
@@ -20,16 +19,14 @@ class CourseController extends Controller
 
     public function show(Request $request, string $id)
     {
-        $query = DB::table('courses')->where('id', $id);
-
-        if ($request->user()->role !== 'admin') {
-            $query->where('status', 'published');
-        }
-
-        $course = $query->first();
+        $course = $this->findById('courses', $id, function ($query) use ($request) {
+            if ($request->user()->role !== 'admin') {
+                $query->where('status', 'published');
+            }
+        });
 
         if (!$course) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
         return response()->json($course);
@@ -37,8 +34,8 @@ class CourseController extends Controller
 
     public function store(Request $request)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
         $request->validate([
@@ -47,7 +44,7 @@ class CourseController extends Controller
             'status' => 'in:published,draft',
         ]);
 
-        $id = DB::table('courses')->insertGetId([
+        $id = $this->table('courses')->insertGetId([
             'title' => $request->title,
             'description' => $request->description,
             'status' => $request->input('status', 'draft'),
@@ -60,17 +57,17 @@ class CourseController extends Controller
 
     public function update(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $course = DB::table('courses')->where('id', $id)->first();
+        $course = $this->findById('courses', $id);
 
         if (!$course) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        DB::table('courses')->where('id', $id)->update([
+        $this->table('courses')->where('id', $id)->update([
             'title' => $request->title ?? $course->title,
             'description' => $request->description ?? $course->description,
             'status' => $request->input('status', $course->status),
@@ -82,17 +79,17 @@ class CourseController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        if ($request->user()->role !== 'admin') {
-            return response()->json(['error' => 'Forbidden'], 403);
+        if ($response = $this->requireAdmin($request)) {
+            return $response;
         }
 
-        $course = DB::table('courses')->where('id', $id)->first();
+        $course = $this->findById('courses', $id);
 
         if (!$course) {
-            return response()->json(['error' => 'Not found'], 404);
+            return $this->notFoundResponse();
         }
 
-        DB::table('courses')->where('id', $id)->delete();
+        $this->table('courses')->where('id', $id)->delete();
 
         return response()->json(['deleted' => true]);
     }

@@ -164,6 +164,10 @@ npm run dev
 The database schema now lives in Laravel migrations under `backend/database/migrations`, and the mock/demo dataset is seeded through `backend/database/seeders`.
 After starting PostgreSQL, run `php artisan migrate --seed` from the backend to build and populate the database.
 
+If you want a completely fresh rebuild of the database and demo content, run `php artisan migrate:fresh --seed` from `backend/`.
+
+The demo lesson content includes Markdown formatting and GitHub-style callouts so the renderer can be tested with realistic authored content.
+
 ---
 
 ## Testing
@@ -282,7 +286,7 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [ ] Estimated durations for courses, lessons, and quizzes
 - [ ] Timed quizzes
 - [x] Course deadlines
-- [ ] General UI polish
+- [x] General UI polish
 - [x] Tests (unit, feature)
 
 ---
