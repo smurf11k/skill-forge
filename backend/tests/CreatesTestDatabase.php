@@ -33,6 +33,19 @@ trait CreatesTestDatabase
             updated_at     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
         )');
 
+        DB::statement('CREATE TABLE IF NOT EXISTS user_invites (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            email      VARCHAR(150) NOT NULL,
+            role       VARCHAR(20)  NOT NULL,
+            token      VARCHAR(100) NOT NULL UNIQUE,
+            invited_by INTEGER      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            expires_at TIMESTAMP    NOT NULL,
+            accepted_at TIMESTAMP   NULL,
+            revoked_at TIMESTAMP    NULL,
+            created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+        )');
+
         DB::statement('CREATE TABLE IF NOT EXISTS courses (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             title       VARCHAR(200) NOT NULL,
@@ -93,6 +106,20 @@ trait CreatesTestDatabase
             score           INT       NOT NULL,
             total_questions INT       NOT NULL,
             completed_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )');
+
+        DB::statement('CREATE TABLE IF NOT EXISTS course_assignments (
+            id                   INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id              INTEGER   NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            course_id            INTEGER   NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+            assigned_by          INTEGER   NOT NULL REFERENCES users(id),
+            due_at               TIMESTAMP NULL,
+            assigned_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notification_sent_at TIMESTAMP NULL,
+            completed_at         TIMESTAMP NULL,
+            created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, course_id)
         )');
     }
 

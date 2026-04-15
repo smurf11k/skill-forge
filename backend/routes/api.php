@@ -10,6 +10,7 @@ use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\InviteController;
+use App\Http\Controllers\CourseAssignmentController;
 
 // Public
 Route::post('/login', [AuthController::class, 'login']);
@@ -62,10 +63,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('users/{id}', [UserController::class, 'destroy']);
 
     // Invites (admin)
-    Route::get('/invites', [InviteController::class, 'index']);
-    Route::post('/invites', [InviteController::class, 'store']);
-    Route::post('/invites/{id}/resend', [InviteController::class, 'resend']);
-    Route::delete('/invites/{id}', [InviteController::class, 'revoke']);
+    Route::get('invites', [InviteController::class, 'index']);
+    Route::post('invites', [InviteController::class, 'store']);
+    Route::post('invites/{id}/resend', [InviteController::class, 'resend']);
+    Route::delete('invites/{id}', [InviteController::class, 'revoke']);
+
+    // Course assignments (admin)
+    Route::get('assignments', [CourseAssignmentController::class, 'index']);
+    Route::post('assignments', [CourseAssignmentController::class, 'store']);
+    Route::put('assignments/{id}', [CourseAssignmentController::class, 'update']);
+    Route::delete('assignments/{id}', [CourseAssignmentController::class, 'destroy']);
 
     // Admin stats & team progress
     Route::get('admin/stats', [UserController::class, 'stats']);

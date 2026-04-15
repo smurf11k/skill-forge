@@ -253,6 +253,11 @@ class QuizController extends Controller
             'completed_at' => now(),
         ]);
 
+        CourseAssignmentController::syncCompletionForUserCourse(
+            (int) $request->user()->id,
+            (int) $quiz->course_id
+        );
+
         return response()->json([
             'score' => $score,
             'total_questions' => $total,

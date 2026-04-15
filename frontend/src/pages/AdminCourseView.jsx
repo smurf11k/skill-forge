@@ -14,6 +14,13 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import {
+  BookOpen,
+  FileQuestion,
+  Lightbulb,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import Layout from "../components/Layout";
 import api, { getUser } from "../api/auth";
 import { Button } from "@/components/ui/button";
@@ -60,8 +67,8 @@ function StatusPill({ status }) {
 }
 
 const TYPE_META = {
-  lesson: { icon: "📖" },
-  quiz: { icon: "📝" },
+  lesson: { icon: BookOpen },
+  quiz: { icon: FileQuestion },
 };
 
 function SortableContentItem({ item, onEdit, onDelete }) {
@@ -81,6 +88,7 @@ function SortableContentItem({ item, onEdit, onDelete }) {
   };
 
   const meta = TYPE_META[item._type];
+  const ItemIcon = meta.icon;
 
   return (
     <div
@@ -95,25 +103,25 @@ function SortableContentItem({ item, onEdit, onDelete }) {
       >
         ⠿
       </span>
-      <span className="shrink-0">{meta.icon}</span>
+      <ItemIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
       <span className="flex-1 truncate">{item.title}</span>
       <StatusPill status={item.status} />
       <div className="hidden group-hover:flex gap-1 shrink-0">
         <Button
           variant="ghost"
-          size="sm"
-          className="h-6 px-2 text-xs"
+          size="icon"
+          className="h-8 w-8"
           onClick={onEdit}
         >
-          Edit
+          <Pencil className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
-          size="sm"
-          className="h-6 px-2 text-xs text-destructive hover:text-destructive"
+          size="icon"
+          className="h-8 w-8 text-destructive hover:text-destructive"
           onClick={onDelete}
         >
-          Delete
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>
@@ -996,8 +1004,11 @@ export default function AdminCourseView() {
                     setSavingQuestion={setSavingQuestion}
                   />
                 ) : (
-                  <p className="text-xs text-muted-foreground">
-                    💡 Save the quiz first, then you can add questions to it.
+                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5" />
+                    <span>
+                      Save the quiz first, then you can add questions to it.
+                    </span>
                   </p>
                 )}
               </div>

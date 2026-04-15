@@ -107,6 +107,20 @@ CREATE TABLE IF NOT EXISTS results (
     completed_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS course_assignments (
+    id                   BIGSERIAL PRIMARY KEY,
+    user_id              BIGINT      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    course_id            BIGINT      NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    assigned_by          BIGINT      NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+    due_at               TIMESTAMP   NULL,
+    assigned_at          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notification_sent_at TIMESTAMP   NULL,
+    completed_at         TIMESTAMP   NULL,
+    created_at           TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    updated_at           TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, course_id)
+);
+
 -- Optional indexes for faster lookups
 CREATE INDEX IF NOT EXISTS idx_lessons_course_id
     ON lessons(course_id);

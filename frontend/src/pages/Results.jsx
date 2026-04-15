@@ -11,13 +11,14 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StatCard from "../components/StatCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function Results() {
   const user = getUser();
   const navigate = useNavigate();
   const { courses, results, stats, loading } = useCourseProgress();
   const [resetting, setResetting] = useState(false);
+  const [assignments, setAssignments] = useState([]);
 
   const handleReset = async () => {
     if (!confirm("Reset all your progress? This cannot be undone.")) return;
@@ -30,6 +31,19 @@ export default function Results() {
       setResetting(false);
     }
   };
+
+  useEffect(() => {
+    const loadAssignments = async () => {
+      try {
+        const { data } = await api.get("/assignments");
+        setAssignments(data);
+      } catch {
+        setAssignments([]);
+      }
+    };
+
+    loadAssignments();
+  }, []);
 
   if (loading)
     return (
@@ -63,11 +77,15 @@ export default function Results() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
           {[
-            ["Courses Done", stats.coursesDone],
-            ["Quizzes Taken", stats.quizzesTaken],
-            ["Avg Score", stats.avgScore !== null ? `${stats.avgScore}%` : "—"],
-          ].map(([label, value]) => (
-            <StatCard key={label} label={label} value={value} />
+            ["🏁", "Courses Done", stats.coursesDone],
+            ["🧠", "Quizzes Taken", stats.quizzesTaken],
+            [
+              "📊",
+              "Avg Score",
+              stats.avgScore !== null ? `${stats.avgScore}%` : "—",
+            ],
+          ].map(([visual, label, value]) => (
+            <StatCard key={label} label={label} value={value} visual={visual} />
           ))}
         </div>
 
@@ -86,14 +104,32 @@ export default function Results() {
             <CardContent className="p-0">
               {/* Header */}
               <div className="grid grid-cols-12 gap-3 px-4 py-2 border-b text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <span className="col-span-4">Course</span>
+                <span className="col-span-3">Course</span>
                 <span className="col-span-3">Progress</span>
                 <span className="col-span-1">Quizzes</span>
                 <span className="col-span-2">Avg Score</span>
+                <span className="col-span-1">Due</span>
                 <span className="col-span-2">Status</span>
               </div>
 
               {courses.map((course, i) => {
+                const assignment = assignments.find(
+                  (a) => a.course_id === course.id,
+                );
+
+                const dueText = assignment?.due_at
+                  ? new Date(assignment.due_at).toLocaleDateString()
+                  : "—";
+
+                const deadlineStatusText =
+                  assignment?.deadline_status === "completed_on_time"
+                    ? "On time"
+                    : assignment?.deadline_status === "completed_late"
+                      ? "Late"
+                      : assignment?.deadline_status === "overdue"
+                        ? "Overdue"
+                        : null;
+
                 // find the latest attempt date for this course
                 const courseResults = results.filter(
                   (r) => r.course_id === course.id,
@@ -113,7 +149,7 @@ export default function Results() {
                     onClick={() => navigate(`/courses/${course.id}`)}
                   >
                     {/* Course name */}
-                    <div className="col-span-4">
+                    <div className="col-span-3">
                       <p className="text-sm font-medium">{course.title}</p>
                       {lastAttempt && (
                         <p className="text-xs text-muted-foreground">
@@ -141,6 +177,23 @@ export default function Results() {
                         <ScoreText pct={course.avgScore} className="text-sm" />
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>
+                      )}
+                    </div>
+
+                    {/* Due date */}
+                    <div className="col-span-1 text-xs text-muted-foreground">
+                      <div>{dueText}</div>
+                      {deadlineStatusText && (
+                        <div
+                          className={
+                            assignment?.deadline_status === "overdue" ||
+                            assignment?.deadline_status === "completed_late"
+                              ? "text-amber-600 mt-1"
+                              : "mt-1"
+                          }
+                        >
+                          {deadlineStatusText}
+                        </div>
                       )}
                     </div>
 

@@ -2,66 +2,10 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
-import { StatusBadge, ProgressBar, ScoreText } from "../components/StatusBadge";
+import { EmployeeCourseCard } from "../components/EmployeeCourseCard";
 import StatCard from "../components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-// Shared course card — identical to what Courses.jsx shows employees
-function CourseCard({ course, navigate }) {
-  const actionLabel =
-    course.status === "completed"
-      ? "Review"
-      : course.status === "in_progress"
-        ? "Continue →"
-        : "Start Course →";
-  const actionVariant = course.status === "not_started" ? "outline" : "default";
-
-  return (
-    <Card
-      className="cursor-pointer hover:border-foreground/20 transition-colors flex flex-col"
-      onClick={() => navigate(`/courses/${course.id}`)}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-sm leading-snug">{course.title}</CardTitle>
-          <StatusBadge status={course.status} />
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3 flex-1">
-        <p className="text-xs text-muted-foreground line-clamp-2">
-          {course.description || "No description."}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {course.totalLessons} lesson{course.totalLessons !== 1 ? "s" : ""} ·{" "}
-          {course.totalQuizzes} quiz{course.totalQuizzes !== 1 ? "zes" : ""}
-        </p>
-        <div className="space-y-1">
-          <ProgressBar pct={course.progressPct} />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{course.progressPct}% complete</span>
-            {course.avgScore !== null && (
-              <span>
-                Avg <ScoreText pct={course.avgScore} className="text-xs" />
-              </span>
-            )}
-          </div>
-        </div>
-        <Button
-          size="sm"
-          variant={actionVariant}
-          className="w-full mt-auto"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/courses/${course.id}`);
-          }}
-        >
-          {actionLabel}
-        </Button>
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function Dashboard() {
   const user = getUser();
@@ -78,22 +22,24 @@ export default function Dashboard() {
   const inProgress = courses.filter((c) => c.status === "in_progress");
   const notStarted = courses.filter((c) => c.status === "not_started");
   const completed = courses.filter((c) => c.status === "completed");
+  const assigned = courses.filter(
+    (c) =>
+      (c.deadline_status || c.assignment_status) && c.status !== "completed",
+  );
 
   // Welcome message subtitle
   const subtitle = () => {
     const parts = [];
-    if (inProgress.length > 0)
+    if (assigned.length > 0)
       parts.push(
-        `${inProgress.length} course${inProgress.length !== 1 ? "s" : ""} in progress`,
+        `${assigned.length} course${assigned.length !== 1 ? "s" : ""} assigned`,
       );
-    if (notStarted.length > 0)
-      parts.push(
-        `${notStarted.length} course${notStarted.length !== 1 ? "s" : ""} not started yet`,
-      );
+    if (inProgress.length > 0) parts.push(`${inProgress.length} in progress`);
+    if (notStarted.length > 0) parts.push(`${notStarted.length} not started`);
     if (parts.length === 0 && completed.length > 0)
       return "You've completed all available courses. Great work!";
     if (parts.length === 0) return "No courses available yet.";
-    return `You have ${parts.join(" and ")}. Keep forging your skills.`;
+    return `You have ${parts.join(", ")}. Keep forging your skills.`;
   };
 
   return (
@@ -105,9 +51,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-semibold">
               Welcome back, {user.name}
             </h1>
-            <p className="text-sm text-muted-foreground mt-1 max-w-lg">
-              {subtitle()}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">{subtitle()}</p>
             <div className="flex gap-3 mt-5">
               {inProgress.length > 0 && (
                 <Button onClick={() => navigate(`/courses`)}>
@@ -131,15 +75,16 @@ export default function Dashboard() {
         {/* Stats — 4 cards */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            ["Total Courses", courses.length],
-            ["Completed", completed.length],
-            ["In Progress", inProgress.length],
+            ["📚", "Total Courses", courses.length],
+            ["✅", "Completed", completed.length],
+            ["⏳", "In Progress", inProgress.length],
             [
+              "📈",
               "Avg Quiz Score",
               stats.avgScore !== null ? `${stats.avgScore}%` : "—",
             ],
-          ].map(([label, value]) => (
-            <StatCard key={label} label={label} value={value} />
+          ].map(([visual, label, value]) => (
+            <StatCard key={label} label={label} value={value} visual={visual} />
           ))}
         </div>
 
@@ -151,7 +96,7 @@ export default function Dashboard() {
             </h2>
             <div className="grid grid-cols-3 gap-4">
               {inProgress.map((course) => (
-                <CourseCard
+                <EmployeeCourseCard
                   key={course.id}
                   course={course}
                   navigate={navigate}
@@ -169,7 +114,7 @@ export default function Dashboard() {
             </h2>
             <div className="grid grid-cols-3 gap-4">
               {notStarted.map((course) => (
-                <CourseCard
+                <EmployeeCourseCard
                   key={course.id}
                   course={course}
                   navigate={navigate}
@@ -187,7 +132,7 @@ export default function Dashboard() {
             </h2>
             <div className="grid grid-cols-3 gap-4">
               {completed.map((course) => (
-                <CourseCard
+                <EmployeeCourseCard
                   key={course.id}
                   course={course}
                   navigate={navigate}

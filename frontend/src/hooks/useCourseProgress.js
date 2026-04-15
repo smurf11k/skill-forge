@@ -8,15 +8,28 @@ export function useCourseProgress() {
   const [quizMap, setQuizMap] = useState({});
   const [lessonMap, setLessonMap] = useState({});
   const [completedLessonMap, setCompletedLessonMap] = useState({}); // courseId -> Set of completed lessonIds
+  const [assignmentMap, setAssignmentMap] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.get("/courses"), api.get(`/results/${user.id}`)])
-      .then(async ([c, r]) => {
+    Promise.all([
+      api.get("/courses"),
+      api.get(`/results/${user.id}`),
+      api.get("/assignments"),
+    ])
+      .then(async ([c, r, a]) => {
         const courseList = c.data;
         const resultList = r.data;
+        const assignmentList = a.data;
         setCourses(courseList);
         setResults(resultList);
+
+        // Map assignments by course_id
+        const aMap = {};
+        assignmentList.forEach((assignment) => {
+          aMap[assignment.course_id] = assignment;
+        });
+        setAssignmentMap(aMap);
 
         const qMap = {};
         const lMap = {};
@@ -55,6 +68,7 @@ export function useCourseProgress() {
     const quizzes = quizMap[course.id] ?? [];
     const lessons = lessonMap[course.id] ?? [];
     const completedLessons = completedLessonMap[course.id] ?? new Set();
+    const assignment = assignmentMap[course.id];
 
     const totalItems = lessons.length + quizzes.length;
     const passedQuizzes = quizzes.filter((q) => isQuizPassed(q.id)).length;
@@ -94,6 +108,9 @@ export function useCourseProgress() {
         : isStarted
           ? "in_progress"
           : "not_started",
+      deadline_status: assignment?.deadline_status,
+      assignment_status: assignment?.deadline_status,
+      due_at: assignment?.due_at,
     };
   });
 

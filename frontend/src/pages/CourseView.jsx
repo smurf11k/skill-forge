@@ -200,6 +200,7 @@ export default function CourseView() {
   const user = getUser();
 
   const [course, setCourse] = useState(null);
+  const [assignment, setAssignment] = useState(null);
   const [items, setItems] = useState([]);
   const [questions, setQuestions] = useState({});
   const [activeId, setActiveId] = useState(null);
@@ -244,20 +245,28 @@ export default function CourseView() {
     setUserResults(data);
   };
 
+  const loadAssignment = async () => {
+    const { data } = await api.get(`/assignments?course_id=${id}`);
+    setAssignment(data?.[0] ?? null);
+  };
+
   const loadPage = async () => {
     setLoading(true);
 
     try {
-      const [courseRes, lessonsRes, quizzesRes] = await Promise.all([
-        api.get(`/courses/${id}`),
-        api.get(`/courses/${id}/lessons`),
-        api.get(`/courses/${id}/quizzes`),
-      ]);
+      const [courseRes, lessonsRes, quizzesRes, assignmentsRes] =
+        await Promise.all([
+          api.get(`/courses/${id}`),
+          api.get(`/courses/${id}/lessons`),
+          api.get(`/courses/${id}/quizzes`),
+          api.get(`/assignments?course_id=${id}`),
+        ]);
 
       const merged = buildItems(lessonsRes.data, quizzesRes.data);
 
       setCourse(courseRes.data);
       setItems(merged);
+      setAssignment(assignmentsRes.data?.[0] ?? null);
 
       await Promise.all([loadProgress(), loadResults()]);
 
@@ -349,6 +358,33 @@ export default function CourseView() {
   const courseComplete =
     totalItems > 0 && allLessonsComplete && allQuizzesComplete;
 
+  const dueDateLabel = assignment?.due_at
+    ? new Date(assignment.due_at).toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+    : null;
+
+  const deadlineTone =
+    assignment?.deadline_status === "overdue"
+      ? "destructive"
+      : assignment?.deadline_status === "completed_late"
+        ? "secondary"
+        : "outline";
+
+  const deadlineText =
+    assignment?.deadline_status === "completed_on_time"
+      ? "Completed on time"
+      : assignment?.deadline_status === "completed_late"
+        ? "Completed late"
+        : assignment?.deadline_status === "overdue"
+          ? "Overdue"
+          : assignment?.deadline_status === "assigned"
+            ? "Assigned"
+            : assignment?.deadline_status === "completed"
+              ? "Completed"
+              : null;
+
   const isItemDone = (item) => {
     if (item._type === "lesson") return completedLessonIds.has(item.id);
     return completedQuizIds.has(item.id);
@@ -374,6 +410,7 @@ export default function CourseView() {
     if (!completedLessonIds.has(activeItem.id)) {
       await api.post(`/lessons/${activeItem.id}/complete`);
       setCompletedLessonIds((prev) => new Set([...prev, activeItem.id]));
+      await loadAssignment();
     }
 
     if (nextItem) {
@@ -394,6 +431,7 @@ export default function CourseView() {
   const finishQuiz = async () => {
     setQuizActive(false);
     await loadResults();
+    await loadAssignment();
 
     if (nextItem) {
       setActiveId(nextItem._dnd_id);
@@ -445,14 +483,32 @@ export default function CourseView() {
               ← Courses
             </Button>
 
-            <div>
-              <p className="font-semibold text-sm leading-snug">
-                {course.title}
-              </p>
-              {course.description && (
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                  {course.description}
+            <div className="space-y-2">
+              <div>
+                <p className="font-semibold text-sm leading-snug">
+                  {course.title}
                 </p>
+                {course.description && (
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                    {course.description}
+                  </p>
+                )}
+              </div>
+
+              {dueDateLabel && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Deadline: {dueDateLabel}
+                  </p>
+                  {deadlineText && (
+                    <Badge
+                      variant={deadlineTone}
+                      className="text-[10px] uppercase tracking-wide"
+                    >
+                      {deadlineText}
+                    </Badge>
+                  )}
+                </div>
               )}
             </div>
 

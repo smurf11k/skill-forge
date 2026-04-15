@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import api, { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
-import { StatusBadge, ProgressBar, ScoreText } from "../components/StatusBadge";
+import { StatusBadge } from "../components/StatusBadge";
+import { EmployeeCourseCard } from "../components/EmployeeCourseCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -179,73 +180,34 @@ export default function Courses() {
 
         {/* Course grid */}
         <div className="grid grid-cols-3 gap-4">
-          {filtered.map((course) => (
-            <Card
-              key={course.id}
-              className="cursor-pointer hover:border-foreground/20 transition-colors flex flex-col"
-              onClick={() => navigate(`/courses/${course.id}`)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-sm leading-snug">
-                    {course.title}
-                  </CardTitle>
-                  {!isAdmin && <StatusBadge status={course.status} />}
-                </div>
-              </CardHeader>
-
-              <CardContent className="flex flex-col gap-3 flex-1">
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {course.description || "No description."}
-                </p>
-
-                {/* Lesson + quiz count — shown for both roles */}
-                <p className="text-xs text-muted-foreground">
-                  {metaLine(course)}
-                </p>
-
-                {/* Employee: progress bar + avg score */}
-                {!isAdmin && (
-                  <div className="space-y-1">
-                    <ProgressBar pct={course.progressPct} />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{course.progressPct}% complete</span>
-                      {course.avgScore !== null && (
-                        <span>
-                          Avg{" "}
-                          <ScoreText
-                            pct={course.avgScore}
-                            className="text-xs"
-                          />
-                        </span>
-                      )}
-                    </div>
+          {filtered.map((course) =>
+            isAdmin ? (
+              <Card
+                key={course.id}
+                className="cursor-pointer hover:border-foreground/20 transition-colors flex flex-col"
+                onClick={() => navigate(`/courses/${course.id}`)}
+              >
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <CardTitle className="text-sm leading-snug">
+                      {course.title}
+                    </CardTitle>
                   </div>
-                )}
+                </CardHeader>
 
-                {/* Employee: action button */}
-                {!isAdmin && (
-                  <Button
-                    size="sm"
-                    variant={
-                      course.status === "not_started" ? "outline" : "default"
-                    }
-                    className="w-full mt-auto"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/courses/${course.id}`);
-                    }}
-                  >
-                    {course.status === "completed"
-                      ? "Review"
-                      : course.status === "in_progress"
-                        ? "Continue →"
-                        : "Start Course →"}
-                  </Button>
-                )}
+                <CardContent className="flex flex-col gap-3 flex-1">
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {course.description || "No description."}
+                  </p>
 
-                {/* Admin: view / edit / delete */}
-                {isAdmin && (
+                  {/* Lesson + quiz count */}
+                  <div className="space-y-1">
+                    <p className="text-xs text-muted-foreground">
+                      {metaLine(course)}
+                    </p>
+                  </div>
+
+                  {/* Admin: view / edit / delete */}
                   <div
                     className="flex gap-2 mt-auto"
                     onClick={(e) => e.stopPropagation()}
@@ -274,10 +236,16 @@ export default function Courses() {
                       Delete
                     </Button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ) : (
+              <EmployeeCourseCard
+                key={course.id}
+                course={course}
+                navigate={navigate}
+              />
+            ),
+          )}
         </div>
 
         {filtered.length === 0 && (

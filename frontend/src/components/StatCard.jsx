@@ -1,15 +1,23 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
-export default function StatCard({ label, value }) {
+export default function StatCard({
+  label,
+  value,
+  visual = null,
+  visualClassName = "text-xl opacity-40",
+}) {
   return (
     <Card>
-      <CardHeader className="pb-1">
-        <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <CardContent className="pt-4 relative">
+        {visual && (
+          <span className={`absolute top-4 right-4 ${visualClassName}`}>
+            {visual}
+          </span>
+        )}
+        <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
           {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="text-3xl font-bold">{value}</p>
+        </p>
+        <p className="text-3xl font-bold mt-1">{value}</p>
       </CardContent>
     </Card>
   );

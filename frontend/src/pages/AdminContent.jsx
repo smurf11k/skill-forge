@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, FolderOpen, Eye, EyeOff, Trash2 } from "lucide-react";
+import {
+  Pencil,
+  FolderOpen,
+  Eye,
+  EyeOff,
+  Trash2,
+  BookOpen,
+  FileText,
+  HelpCircle,
+  Lightbulb,
+} from "lucide-react";
 import LessonMarkdownEditor from "../components/markdown/LessonMarkdownEditor";
 import Layout from "../components/Layout";
 import api from "../api/auth";
@@ -623,9 +633,9 @@ export default function AdminContent() {
 
               <div className="space-y-1">
                 {[
-                  { key: "courses", icon: "📚", label: "Courses" },
-                  { key: "lessons", icon: "📄", label: "Lessons" },
-                  { key: "quizzes", icon: "❓", label: "Quizzes" },
+                  { key: "courses", icon: BookOpen, label: "Courses" },
+                  { key: "lessons", icon: FileText, label: "Lessons" },
+                  { key: "quizzes", icon: HelpCircle, label: "Quizzes" },
                 ].map((item) => (
                   <button
                     key={item.key}
@@ -641,8 +651,8 @@ export default function AdminContent() {
                         : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                     }`}
                   >
-                    <span>{item.icon}</span>
-                    {item.label}
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
                   </button>
                 ))}
               </div>
@@ -1042,8 +1052,11 @@ export default function AdminContent() {
                     </CardContent>
                   </Card>
 
-                  <p className="text-xs text-muted-foreground">
-                    💡 Save the quiz first, then you can add questions to it.
+                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                    <Lightbulb className="h-3.5 w-3.5" />
+                    <span>
+                      Save the quiz first, then you can add questions to it.
+                    </span>
                   </p>
                 </div>
               )}

@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminTeamProgress from "./pages/AdminTeamProgress";
 import AdminUsers from "./pages/AdminUsers";
 import AdminContent from "./pages/AdminContent";
+import AdminAssignments from "./pages/AdminAssignments";
 import AcceptInvite from "./pages/AcceptInvite";
 import { getToken, getUser } from "./api/auth";
 
@@ -116,6 +117,14 @@ export default function App() {
           element={
             <AdminOnly>
               <AdminCourseView />
+            </AdminOnly>
+          }
+        />
+        <Route
+          path="/admin/assignments"
+          element={
+            <AdminOnly>
+              <AdminAssignments />
             </AdminOnly>
           }
         />

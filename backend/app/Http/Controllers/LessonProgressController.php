@@ -37,6 +37,11 @@ class LessonProgressController extends Controller
             ['completed_at']
         );
 
+        CourseAssignmentController::syncCompletionForUserCourse(
+            $userId,
+            (int) $lesson->course_id
+        );
+
         return response()->json(['completed' => true]);
     }
 

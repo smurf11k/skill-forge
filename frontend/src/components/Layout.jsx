@@ -27,9 +27,9 @@ export default function Layout({ children }) {
   const adminLinks = [
     ["/admin", "Dashboard"],
     ["/admin/team", "Team Progress"],
-    ["/admin/users", "Users"],
+    ["/admin/users", "Users & Roles"],
     ["/admin/content", "Manage Content"],
-    //["/results", "My Progress"],
+    ["/admin/assignments", "Assignments"],
   ];
 
   const links = isAdmin ? adminLinks : employeeLinks;

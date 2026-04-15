@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import api from "../api/auth";
 import { ScoreText, ProgressBar } from "../components/StatusBadge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import StatCard from "../components/StatCard";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -178,26 +179,16 @@ export default function AdminDashboard() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">
           {[
-            ["👥", stats?.total_employees ?? 0, "Employees"],
+            ["👥", "Employees", stats?.total_employees ?? 0],
             [
               "📊",
-              avgCompletion !== null ? `${avgCompletion}%` : "—",
               "Avg Completion",
+              avgCompletion !== null ? `${avgCompletion}%` : "—",
             ],
-            ["🏆", stats?.avg_score ? `${stats.avg_score}%` : "—", "Avg Score"],
-            ["⚠️", atRisk, "At Risk (< 50%)"],
-          ].map(([icon, value, label]) => (
-            <Card key={label}>
-              <CardContent className="pt-4 relative">
-                <span className="absolute top-4 right-4 text-xl opacity-40">
-                  {icon}
-                </span>
-                <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
-                  {label}
-                </p>
-                <p className="text-3xl font-bold mt-1">{value}</p>
-              </CardContent>
-            </Card>
+            ["🏆", "Avg Score", stats?.avg_score ? `${stats.avg_score}%` : "—"],
+            ["⚠️", "At Risk (< 50%)", atRisk],
+          ].map(([visual, label, value]) => (
+            <StatCard key={label} label={label} value={value} visual={visual} />
           ))}
         </div>
 

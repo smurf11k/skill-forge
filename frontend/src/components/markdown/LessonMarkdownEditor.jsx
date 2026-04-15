@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
 import MarkdownContent from "./MarkdownContent";
@@ -18,6 +18,36 @@ function MarkdownPreview({ value }) {
 
 export default function LessonMarkdownEditor({ value, onChange }) {
   const [tab, setTab] = useState("write");
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileImport = async (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) return;
+
+    if (value?.trim() && !confirm("Replace the current lesson content with the imported markdown file?")) {
+      event.target.value = "";
+      return;
+    }
+
+    setImporting(true);
+
+    try {
+      const importedContent = await file.text();
+      onChange(importedContent);
+      setTab("write");
+    } catch {
+      alert("Failed to import markdown file.");
+    } finally {
+      setImporting(false);
+      event.target.value = "";
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -38,6 +68,22 @@ export default function LessonMarkdownEditor({ value, onChange }) {
         >
           Preview
         </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={handleImportClick}
+          disabled={importing}
+        >
+          {importing ? "Importing..." : "Import .md"}
+        </Button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".md,.markdown,text/markdown,text/plain"
+          className="hidden"
+          onChange={handleFileImport}
+        />
       </div>
 
       {tab === "write" ? (
