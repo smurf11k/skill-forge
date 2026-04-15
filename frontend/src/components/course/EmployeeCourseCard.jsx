@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge, ProgressBar, ScoreText } from "./StatusBadge";
-import CourseMetaLine from "./course/CourseMetaLine";
+import { StatusBadge, ProgressBar, ScoreText } from "../common/StatusBadge";
+import CourseMetaLine from "./CourseMetaLine";
 
 export function EmployeeCourseCard({ course, navigate }) {
   const actionLabel =
@@ -48,17 +48,17 @@ export function EmployeeCourseCard({ course, navigate }) {
                     className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium whitespace-nowrap ${
                       {
                         assigned:
-                          "bg-blue-500/15 text-blue-400 border border-blue-500/30",
+                          "border border-blue-500/35 bg-blue-500/18 text-blue-700 dark:text-blue-400",
                         in_progress:
-                          "bg-yellow-500/15 text-yellow-400 border border-yellow-500/30",
+                          "border border-yellow-500/35 bg-yellow-500/18 text-yellow-700 dark:text-yellow-400",
                         overdue:
-                          "bg-red-500/15 text-red-400 border border-red-500/30",
+                          "border border-red-500/35 bg-red-500/18 text-red-700 dark:text-red-400",
                         completed_on_time:
-                          "bg-green-500/15 text-green-400 border border-green-500/30",
+                          "border border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
                         completed_late:
-                          "bg-orange-500/15 text-orange-400 border border-orange-500/30",
+                          "border border-orange-500/35 bg-orange-500/18 text-orange-700 dark:text-orange-400",
                         completed:
-                          "bg-green-500/15 text-green-400 border border-green-500/30",
+                          "border border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
                       }[status] || ""
                     }`}
                   >

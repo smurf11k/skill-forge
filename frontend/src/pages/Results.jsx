@@ -7,10 +7,10 @@ import {
   ProgressBar,
   ScoreText,
   scoreColor,
-} from "../components/StatusBadge";
+} from "../components/common/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import StatCard from "../components/StatCard";
+import StatCard from "../components/common/StatCard";
 import { useEffect, useState } from "react";
 import PageLoader from "../components/common/PageLoader";
 
@@ -63,6 +63,7 @@ export default function Results() {
             <Button
               variant="outline"
               size="sm"
+              className="rounded-[var(--radius)]"
               onClick={handleReset}
               disabled={resetting}
             >

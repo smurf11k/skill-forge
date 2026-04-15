@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
-import StatCard from "../components/StatCard";
+import StatCard from "../components/common/StatCard";
 import CourseSection from "../components/course/CourseSection";
 import PageLoader from "../components/common/PageLoader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

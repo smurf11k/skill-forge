@@ -372,9 +372,9 @@ export default function AdminUsers() {
                     <div className="col-span-2">
                       {!isSelf && (
                         <Button
-                          variant="ghost"
+                          variant="destructive"
                           size="sm"
-                          className="text-destructive hover:text-destructive text-xs h-8"
+                          className="h-8 rounded-[var(--radius)] px-3 text-xs"
                           onClick={() => handleDelete(user.id, user.name)}
                         >
                           Delete

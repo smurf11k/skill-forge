@@ -16,23 +16,27 @@ import LessonMarkdownEditor from "../markdown/LessonMarkdownEditor";
 
 export function EditorHeader({ backLabel, title, onBack, className = "" }) {
   return (
-    <div className={`space-y-1 ${className}`}>
-      <button
+    <div className={`space-y-2 ${className}`}>
+      <Button
         type="button"
         onClick={onBack}
-        className="text-xs text-muted-foreground hover:text-foreground"
+        variant="outline"
+        size="sm"
+        className="h-8 rounded-[var(--radius)] px-3 text-xs text-muted-foreground"
       >
         ← {backLabel}
-      </button>
-      <h1 className="text-2xl font-semibold mt-1">{title}</h1>
+      </Button>
+      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
     </div>
   );
 }
 
 export function EditorCard({ children, className = "" }) {
   return (
-    <Card>
-      <CardContent className={`p-4 space-y-4 ${className}`}>
+    <Card className="border-border/70">
+      <CardContent
+        className={`space-y-5 px-4 py-3 sm:px-5 sm:py-4 ${className}`}
+      >
         {children}
       </CardContent>
     </Card>
@@ -40,6 +44,7 @@ export function EditorCard({ children, className = "" }) {
 }
 
 export function EditorActions({
+  className = "",
   primaryLabel,
   onPrimary,
   primaryDisabled,
@@ -51,18 +56,19 @@ export function EditorActions({
   tertiaryLabel,
   onTertiary,
   tertiaryDisabled,
-  tertiaryVariant = "ghost",
+  tertiaryVariant = "outline",
   destructiveLabel,
   onDestructive,
   destructiveDisabled,
-  destructiveVariant = "ghost",
+  destructiveVariant = "destructive",
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className={`flex flex-wrap gap-2 pt-1 ${className}`}>
       {primaryLabel && (
         <Button
           size="sm"
           variant={primaryVariant}
+          className="rounded-[var(--radius)]"
           onClick={onPrimary}
           disabled={primaryDisabled}
         >
@@ -74,6 +80,7 @@ export function EditorActions({
         <Button
           size="sm"
           variant={secondaryVariant}
+          className="rounded-[var(--radius)]"
           onClick={onSecondary}
           disabled={secondaryDisabled}
         >
@@ -85,6 +92,7 @@ export function EditorActions({
         <Button
           size="sm"
           variant={tertiaryVariant}
+          className="rounded-[var(--radius)]"
           onClick={onTertiary}
           disabled={tertiaryDisabled}
         >
@@ -96,7 +104,7 @@ export function EditorActions({
         <Button
           size="sm"
           variant={destructiveVariant}
-          className="text-destructive hover:text-destructive"
+          className="rounded-[var(--radius)]"
           onClick={onDestructive}
           disabled={destructiveDisabled}
         >
@@ -134,7 +142,7 @@ export function CourseEditorForm({
           />
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label>Description</Label>
           <Textarea
             value={form.description}
@@ -159,6 +167,7 @@ export function CourseEditorForm({
           onTertiary={onCancel}
           tertiaryDisabled={saving}
           destructiveLabel={onDelete ? "Delete Course" : undefined}
+          destructiveVariant="destructive"
           onDestructive={onDelete}
           destructiveDisabled={saving}
         />
@@ -190,7 +199,7 @@ export function LessonEditorForm({
       <EditorHeader backLabel={backLabel} title={title} onBack={onBack} />
 
       <EditorCard>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label>Lesson Title</Label>
           <Input
             value={form.title}
@@ -200,7 +209,7 @@ export function LessonEditorForm({
         </div>
 
         {showCourseSelect && (
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Course</Label>
             <Select
               value={form.course_id}
@@ -220,7 +229,7 @@ export function LessonEditorForm({
           </div>
         )}
 
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label>Content</Label>
           <LessonMarkdownEditor
             value={form.content}
@@ -245,6 +254,7 @@ export function LessonEditorForm({
           onTertiary={onCancel}
           tertiaryDisabled={saving}
           destructiveLabel={onDelete ? "Delete Lesson" : undefined}
+          destructiveVariant="destructive"
           onDestructive={onDelete}
           destructiveDisabled={saving}
         />
@@ -276,7 +286,7 @@ export function QuizEditorForm({
       <EditorHeader backLabel={backLabel} title={title} onBack={onBack} />
 
       <EditorCard>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label>Quiz Title</Label>
           <Input
             value={form.title}
@@ -286,7 +296,7 @@ export function QuizEditorForm({
         </div>
 
         {showCourseSelect && (
-          <div className="space-y-1">
+          <div className="space-y-2">
             <Label>Attach to Course</Label>
             <Select
               value={form.course_id}
@@ -323,6 +333,7 @@ export function QuizEditorForm({
           onTertiary={onCancel}
           tertiaryDisabled={saving}
           destructiveLabel={onDelete ? "Delete Quiz" : undefined}
+          destructiveVariant="destructive"
           onDestructive={onDelete}
           destructiveDisabled={saving}
         />
@@ -354,16 +365,19 @@ export function QuestionEditorForm({
         {isEdit ? "Edit Question" : "New Question"}
       </p>
 
-      <Textarea
-        value={form.question_text}
-        onChange={(e) => setForm({ ...form, question_text: e.target.value })}
-        rows={2}
-        placeholder="Question text"
-      />
+      <div className="space-y-2">
+        <Label className="text-xs">Question</Label>
+        <Textarea
+          value={form.question_text}
+          onChange={(e) => setForm({ ...form, question_text: e.target.value })}
+          rows={2}
+          placeholder="Question text"
+        />
+      </div>
 
       <div className="grid grid-cols-2 gap-2">
         {["a", "b", "c", "d"].map((opt) => (
-          <div key={opt} className="space-y-1">
+          <div key={opt} className="space-y-2">
             <Label className="text-xs">Option {opt.toUpperCase()}</Label>
             <Input
               value={form[`option_${opt}`]}
@@ -375,20 +389,22 @@ export function QuestionEditorForm({
         ))}
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         <Label className="text-xs">Correct Answer</Label>
         <Select
           value={form.correct_answer}
           onValueChange={(v) => setForm({ ...form, correct_answer: v })}
         >
-          <SelectTrigger className="w-48">
+          <SelectTrigger className="w-full max-w-[22rem]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {["a", "b", "c", "d"].map((opt) => (
               <SelectItem key={opt} value={opt}>
-                {opt.toUpperCase()} —{" "}
-                {form[`option_${opt}`] || `Option ${opt.toUpperCase()}`}
+                <span className="block max-w-[17rem] truncate">
+                  {opt.toUpperCase()} —{" "}
+                  {form[`option_${opt}`] || `Option ${opt.toUpperCase()}`}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -399,9 +415,11 @@ export function QuestionEditorForm({
         primaryLabel={isEdit ? "Save" : "Add Question"}
         onPrimary={onSave}
         primaryDisabled={saving}
+        primaryVariant="default"
         tertiaryLabel="Cancel"
         onTertiary={onCancel}
         tertiaryDisabled={saving}
+        tertiaryVariant="outline"
       />
     </EditorCard>
   );

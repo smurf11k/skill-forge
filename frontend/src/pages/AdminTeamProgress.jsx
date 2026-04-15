@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import api from "../api/auth";
-import { ScoreText, StatusBadge } from "../components/StatusBadge";
+import { ScoreText, StatusBadge } from "../components/common/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {

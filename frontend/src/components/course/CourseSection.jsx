@@ -1,4 +1,4 @@
-import { EmployeeCourseCard } from "../EmployeeCourseCard";
+import { EmployeeCourseCard } from "./EmployeeCourseCard";
 
 export default function CourseSection({ title, courses, navigate }) {
   if (courses.length === 0) return null;

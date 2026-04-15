@@ -3,13 +3,13 @@ import { Badge } from "@/components/ui/badge";
 export function StatusBadge({ status }) {
   if (status === "completed")
     return (
-      <Badge className="bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/20">
+      <Badge className="border-green-600/35 bg-green-600/18 text-green-700 hover:bg-green-600/22 dark:text-green-400">
         Completed
       </Badge>
     );
   if (status === "in_progress")
     return (
-      <Badge className="bg-blue-600/20 text-blue-400 border-blue-600/30 hover:bg-blue-600/20">
+      <Badge className="border-blue-600/35 bg-blue-600/18 text-blue-700 hover:bg-blue-600/22 dark:text-blue-400">
         In Progress
       </Badge>
     );

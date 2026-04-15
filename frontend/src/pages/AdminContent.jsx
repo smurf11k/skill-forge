@@ -14,7 +14,7 @@ import {
 import LessonMarkdownEditor from "../components/markdown/LessonMarkdownEditor";
 import Layout from "../components/Layout";
 import api from "../api/auth";
-import { ScoreText } from "../components/StatusBadge";
+import { ScoreText } from "../components/common/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,14 +43,14 @@ import {
 function StatusPill({ status }) {
   if (status === "published") {
     return (
-      <Badge className="bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/20 text-xs">
+      <Badge className="border-green-600/35 bg-green-600/18 text-xs text-green-700 hover:bg-green-600/22 dark:text-green-400">
         Published
       </Badge>
     );
   }
 
   return (
-    <Badge className="bg-yellow-600/20 text-yellow-500 border-yellow-600/30 hover:bg-yellow-600/20 text-xs">
+    <Badge className="border-yellow-600/35 bg-yellow-600/18 text-xs text-yellow-700 hover:bg-yellow-600/22 dark:text-yellow-400">
       Draft
     </Badge>
   );
@@ -234,6 +234,7 @@ function QuestionsList({
         <Button
           variant="outline"
           size="sm"
+          className="rounded-[var(--radius)]"
           onClick={() => {
             setQForm({
               question_text: "",

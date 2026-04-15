@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import api from "../api/auth";
-import { ScoreText, ProgressBar } from "../components/StatusBadge";
-import StatCard from "../components/StatCard";
+import { ScoreText, ProgressBar } from "../components/common/StatusBadge";
+import StatCard from "../components/common/StatCard";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {

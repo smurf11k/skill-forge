@@ -26,6 +26,7 @@ function IconActionButton({
   disabled = false,
   children,
   className = "",
+  variant = "ghost",
 }) {
   return (
     <Tooltip>
@@ -33,9 +34,9 @@ function IconActionButton({
         <Button
           type="button"
           size="icon"
-          variant="ghost"
+          variant={variant}
           disabled={disabled}
-          className={`h-8 w-8 ${className}`}
+          className={`h-8 w-8 rounded-[var(--radius)] ${className}`}
           onClick={onClick}
         >
           {children}
@@ -53,11 +54,15 @@ function StatusBadge({ assignment }) {
 
   const styles = {
     assigned: "bg-muted text-muted-foreground border-border",
-    in_progress: "bg-blue-500/15 text-blue-400 border-blue-500/30",
-    completed: "bg-green-500/15 text-green-400 border-green-500/30",
-    completed_on_time: "bg-green-500/15 text-green-400 border-green-500/30",
-    completed_late: "bg-amber-500/15 text-amber-400 border-amber-500/30",
-    overdue: "bg-red-500/15 text-red-400 border-red-500/30",
+    in_progress:
+      "border-blue-500/35 bg-blue-500/18 text-blue-700 dark:text-blue-400",
+    completed:
+      "border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
+    completed_on_time:
+      "border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
+    completed_late:
+      "border-amber-500/35 bg-amber-500/18 text-amber-700 dark:text-amber-400",
+    overdue: "border-red-500/35 bg-red-500/18 text-red-700 dark:text-red-400",
   };
 
   const labels = {
@@ -536,7 +541,7 @@ export default function AdminAssignments() {
                       </IconActionButton>
                       <IconActionButton
                         label="Delete assignment"
-                        className="text-destructive hover:text-destructive"
+                        variant="destructive"
                         disabled={rowSaving === `delete-${assignment.id}`}
                         onClick={() => handleDelete(assignment)}
                       >
