@@ -18,7 +18,6 @@ import { ScoreText } from "../components/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -34,6 +33,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  CourseEditorForm,
+  LessonEditorForm,
+  QuestionEditorForm,
+  QuizEditorForm,
+} from "../components/admin/ContentEditors";
 
 function StatusPill({ status }) {
   if (status === "published") {
@@ -87,111 +92,52 @@ function QuestionForm({
   setSavingQ,
   setQuizQuestionsList,
 }) {
+  const isEdit = editingQId && editingQId !== "new";
+
   return (
-    <Card>
-      <CardContent className="pt-3 pb-3 space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          {editingQId && editingQId !== "new"
-            ? "Edit Question"
-            : "New Question"}
-        </p>
-
-        <Input
-          value={qForm.question_text}
-          onChange={(e) =>
-            setQForm({ ...qForm, question_text: e.target.value })
+    <QuestionEditorForm
+      mode={isEdit ? "edit" : "create"}
+      form={qForm}
+      setForm={setQForm}
+      saving={savingQ}
+      onSave={async () => {
+        setSavingQ(true);
+        try {
+          if (isEdit) {
+            await api.put(`/questions/${editingQId}`, qForm);
+          } else {
+            await api.post("/questions", { ...qForm, quiz_id: quizId });
           }
-          placeholder="Question text"
-        />
 
-        <div className="grid grid-cols-2 gap-2">
-          {["a", "b", "c", "d"].map((opt) => (
-            <div key={opt} className="space-y-1">
-              <Label className="text-xs">Option {opt.toUpperCase()}</Label>
-              <Input
-                value={qForm[`option_${opt}`]}
-                onChange={(e) =>
-                  setQForm({ ...qForm, [`option_${opt}`]: e.target.value })
-                }
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs">Correct Answer</Label>
-          <Select
-            value={qForm.correct_answer}
-            onValueChange={(v) => setQForm({ ...qForm, correct_answer: v })}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {["a", "b", "c", "d"].map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt.toUpperCase()} —{" "}
-                  {qForm[`option_${opt}`] || `Option ${opt.toUpperCase()}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            disabled={savingQ}
-            onClick={async () => {
-              setSavingQ(true);
-              try {
-                if (editingQId && editingQId !== "new") {
-                  await api.put(`/questions/${editingQId}`, qForm);
-                } else {
-                  await api.post("/questions", { ...qForm, quiz_id: quizId });
-                }
-
-                const { data } = await api.get(`/quizzes/${quizId}/questions`);
-                setQuizQuestionsList(data);
-                setQForm({
-                  question_text: "",
-                  option_a: "",
-                  option_b: "",
-                  option_c: "",
-                  option_d: "",
-                  correct_answer: "a",
-                });
-                setEditingQId(null);
-              } catch {
-                alert("Failed to save question.");
-              } finally {
-                setSavingQ(false);
-              }
-            }}
-          >
-            {editingQId && editingQId !== "new" ? "Save" : "Add Question"}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setEditingQId(null);
-              setQForm({
-                question_text: "",
-                option_a: "",
-                option_b: "",
-                option_c: "",
-                option_d: "",
-                correct_answer: "a",
-              });
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          const { data } = await api.get(`/quizzes/${quizId}/questions`);
+          setQuizQuestionsList(data);
+          setQForm({
+            question_text: "",
+            option_a: "",
+            option_b: "",
+            option_c: "",
+            option_d: "",
+            correct_answer: "a",
+          });
+          setEditingQId(null);
+        } catch {
+          alert("Failed to save question.");
+        } finally {
+          setSavingQ(false);
+        }
+      }}
+      onCancel={() => {
+        setEditingQId(null);
+        setQForm({
+          question_text: "",
+          option_a: "",
+          option_b: "",
+          option_c: "",
+          option_d: "",
+          correct_answer: "a",
+        });
+      }}
+    />
   );
 }
 
@@ -709,450 +655,94 @@ export default function AdminContent() {
           <div className="flex-1 overflow-y-auto">
             <div className="px-8 py-8 space-y-6">
               {panel === "newCourse" && (
-                <div className="max-w-2xl space-y-4">
-                  <div>
-                    <button
-                      onClick={closePanel}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      ← Courses
-                    </button>
-                    <h1 className="text-2xl font-semibold mt-1">
-                      Create New Course
-                    </h1>
-                  </div>
-
-                  <Card>
-                    <CardContent className="pt-4 space-y-4">
-                      <div className="space-y-1">
-                        <Label>Course Title</Label>
-                        <Input
-                          value={courseForm.title}
-                          onChange={(e) =>
-                            setCourseForm({
-                              ...courseForm,
-                              title: e.target.value,
-                            })
-                          }
-                          placeholder="e.g. Advanced CI/CD Pipeline"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Description</Label>
-                        <Input
-                          value={courseForm.description}
-                          onChange={(e) =>
-                            setCourseForm({
-                              ...courseForm,
-                              description: e.target.value,
-                            })
-                          }
-                          placeholder="What will employees learn?"
-                        />
-                      </div>
-
-                      <Separator />
-
-                      <p className="text-xs text-muted-foreground">
-                        Draft courses are only visible to admins.
-                      </p>
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveCourse("published")}
-                          disabled={saving}
-                        >
-                          Save & Publish
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => saveCourse("draft")}
-                          disabled={saving}
-                        >
-                          Save as Draft
-                        </Button>
-                        <Button variant="ghost" onClick={closePanel}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <CourseEditorForm
+                  backLabel="Courses"
+                  title="Create New Course"
+                  form={courseForm}
+                  setForm={setCourseForm}
+                  onBack={closePanel}
+                  onPublish={() => saveCourse("published")}
+                  onDraft={() => saveCourse("draft")}
+                  onCancel={closePanel}
+                  saving={saving}
+                />
               )}
 
               {panel === "newLesson" && (
-                <div className="max-w-4xl space-y-4">
-                  <div>
-                    <button
-                      onClick={closePanel}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      ← Lessons
-                    </button>
-                    <h1 className="text-2xl font-semibold mt-1">
-                      Create New Lesson
-                    </h1>
-                  </div>
-
-                  <Card>
-                    <CardContent className="pt-4 space-y-4">
-                      <div className="space-y-1">
-                        <Label>Lesson Title</Label>
-                        <Input
-                          value={lessonForm.title}
-                          onChange={(e) =>
-                            setLessonForm({
-                              ...lessonForm,
-                              title: e.target.value,
-                            })
-                          }
-                          placeholder="e.g. Commit Best Practices"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Course</Label>
-                        <Select
-                          value={lessonForm.course_id}
-                          onValueChange={(v) =>
-                            setLessonForm({ ...lessonForm, course_id: v })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a course" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={String(c.id)}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Content</Label>
-                        <LessonMarkdownEditor
-                          value={lessonForm.content}
-                          onChange={(value) =>
-                            setLessonForm({
-                              ...lessonForm,
-                              content: value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <Separator />
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveLesson("published")}
-                          disabled={saving}
-                        >
-                          Save & Publish
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => saveLesson("draft")}
-                          disabled={saving}
-                        >
-                          Save as Draft
-                        </Button>
-                        <Button variant="ghost" onClick={closePanel}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                <LessonEditorForm
+                  mode="create"
+                  backLabel="Lessons"
+                  title="Create New Lesson"
+                  form={lessonForm}
+                  setForm={setLessonForm}
+                  courses={courses}
+                  showCourseSelect
+                  onBack={closePanel}
+                  onPublish={() => saveLesson("published")}
+                  onDraft={() => saveLesson("draft")}
+                  onCancel={closePanel}
+                  saving={saving}
+                />
               )}
 
               {panel === "editLesson" && (
-                <div className="max-w-4xl space-y-4">
-                  <div>
-                    <button
-                      onClick={closePanel}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      ← Lessons
-                    </button>
-                    <h1 className="text-2xl font-semibold mt-1">
-                      Edit: {editingItem?.title}
-                    </h1>
-                  </div>
-
-                  <Card>
-                    <CardContent className="pt-4 space-y-4">
-                      <div className="space-y-1">
-                        <Label>Lesson Title</Label>
-                        <Input
-                          value={lessonForm.title}
-                          onChange={(e) =>
-                            setLessonForm({
-                              ...lessonForm,
-                              title: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Course</Label>
-                        <Select
-                          value={lessonForm.course_id}
-                          onValueChange={(v) =>
-                            setLessonForm({ ...lessonForm, course_id: v })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={String(c.id)}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Content</Label>
-                        <LessonMarkdownEditor
-                          value={lessonForm.content}
-                          onChange={(value) =>
-                            setLessonForm({
-                              ...lessonForm,
-                              content: value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      <Separator />
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveLesson("published")}
-                          disabled={saving}
-                        >
-                          Save & Publish
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => saveLesson("draft")}
-                          disabled={saving}
-                        >
-                          Save as Draft
-                        </Button>
-                        {editingItem?.status === "published" && (
-                          <Button
-                            variant="ghost"
-                            className="text-muted-foreground"
-                            onClick={() => saveLesson("draft")}
-                            disabled={saving}
-                          >
-                            Unpublish → Draft
-                          </Button>
-                        )}
-                        <Button variant="ghost" onClick={closePanel}>
-                          Cancel
-                        </Button>
-                      </div>
-
-                      <Separator />
-
-                      <Button
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => {
-                          deleteLesson(editingItem.id);
-                          closePanel();
-                        }}
-                      >
-                        Delete Lesson
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
+                <LessonEditorForm
+                  mode="edit"
+                  backLabel="Lessons"
+                  title={`Edit: ${editingItem?.title}`}
+                  form={lessonForm}
+                  setForm={setLessonForm}
+                  courses={courses}
+                  showCourseSelect
+                  onBack={closePanel}
+                  onPublish={() => saveLesson("published")}
+                  onDraft={() => saveLesson("draft")}
+                  onCancel={closePanel}
+                  onDelete={() => {
+                    deleteLesson(editingItem.id);
+                    closePanel();
+                  }}
+                  saving={saving}
+                />
               )}
 
               {panel === "newQuiz" && (
-                <div className="max-w-2xl space-y-4">
-                  <div>
-                    <button
-                      onClick={closePanel}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      ← Quizzes
-                    </button>
-                    <h1 className="text-2xl font-semibold mt-1">
-                      Create New Quiz
-                    </h1>
-                  </div>
-
-                  <Card>
-                    <CardContent className="pt-4 space-y-4">
-                      <div className="space-y-1">
-                        <Label>Quiz Title</Label>
-                        <Input
-                          value={quizForm.title}
-                          onChange={(e) =>
-                            setQuizForm({ ...quizForm, title: e.target.value })
-                          }
-                          placeholder="e.g. Security Awareness Check"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Attach to Course</Label>
-                        <Select
-                          value={quizForm.course_id}
-                          onValueChange={(v) =>
-                            setQuizForm({ ...quizForm, course_id: v })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a course" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={String(c.id)}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Separator />
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveQuiz("published")}
-                          disabled={saving}
-                        >
-                          Save & Publish
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => saveQuiz("draft")}
-                          disabled={saving}
-                        >
-                          Save as Draft
-                        </Button>
-                        <Button variant="ghost" onClick={closePanel}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
-                    <Lightbulb className="h-3.5 w-3.5" />
-                    <span>
-                      Save the quiz first, then you can add questions to it.
-                    </span>
-                  </p>
-                </div>
+                <QuizEditorForm
+                  mode="create"
+                  backLabel="Quizzes"
+                  title="Create New Quiz"
+                  form={quizForm}
+                  setForm={setQuizForm}
+                  courses={courses}
+                  showCourseSelect
+                  onBack={closePanel}
+                  onPublish={() => saveQuiz("published")}
+                  onDraft={() => saveQuiz("draft")}
+                  onCancel={closePanel}
+                  saving={saving}
+                />
               )}
 
               {panel === "editQuiz" && editingItem && (
                 <div className="max-w-2xl space-y-4">
-                  <div>
-                    <button
-                      onClick={closePanel}
-                      className="text-xs text-muted-foreground hover:text-foreground"
-                    >
-                      ← Quizzes
-                    </button>
-                    <h1 className="text-2xl font-semibold mt-1">
-                      Edit: {editingItem?.title}
-                    </h1>
-                  </div>
-
-                  <Card>
-                    <CardContent className="pt-4 space-y-4">
-                      <div className="space-y-1">
-                        <Label>Quiz Title</Label>
-                        <Input
-                          value={quizForm.title}
-                          onChange={(e) =>
-                            setQuizForm({ ...quizForm, title: e.target.value })
-                          }
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <Label>Attach to Course</Label>
-                        <Select
-                          value={quizForm.course_id}
-                          onValueChange={(v) =>
-                            setQuizForm({ ...quizForm, course_id: v })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {courses.map((c) => (
-                              <SelectItem key={c.id} value={String(c.id)}>
-                                {c.title}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Separator />
-
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => saveQuiz("published")}
-                          disabled={saving}
-                        >
-                          Save & Publish
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => saveQuiz("draft")}
-                          disabled={saving}
-                        >
-                          Save as Draft
-                        </Button>
-                        {editingItem?.status === "published" && (
-                          <Button
-                            variant="ghost"
-                            className="text-muted-foreground"
-                            onClick={() => saveQuiz("draft")}
-                            disabled={saving}
-                          >
-                            Unpublish → Draft
-                          </Button>
-                        )}
-                        <Button variant="ghost" onClick={closePanel}>
-                          Cancel
-                        </Button>
-                      </div>
-
-                      <Separator />
-
-                      <Button
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => {
-                          deleteQuiz(editingItem.id);
-                          closePanel();
-                        }}
-                      >
-                        Delete Quiz
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <QuizEditorForm
+                    mode="edit"
+                    backLabel="Quizzes"
+                    title={`Edit: ${editingItem?.title}`}
+                    form={quizForm}
+                    setForm={setQuizForm}
+                    courses={courses}
+                    showCourseSelect
+                    onBack={closePanel}
+                    onPublish={() => saveQuiz("published")}
+                    onDraft={() => saveQuiz("draft")}
+                    onCancel={closePanel}
+                    onDelete={() => {
+                      deleteQuiz(editingItem.id);
+                      closePanel();
+                    }}
+                    saving={saving}
+                  />
 
                   <QuestionsList
                     quizId={editingItem.id}
@@ -1173,16 +763,6 @@ export default function AdminContent() {
                         placeholder="Search courses..."
                         className="w-64 h-8 text-sm"
                       />
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setCourseForm(EMPTY_COURSE);
-                          setEditingItem(null);
-                          setPanel("newCourse");
-                        }}
-                      >
-                        + New Course
-                      </Button>
                     </div>
                   </div>
 
@@ -1308,17 +888,6 @@ export default function AdminContent() {
                         placeholder="Search lessons..."
                         className="w-64 h-8 text-sm"
                       />
-
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setLessonForm(EMPTY_LESSON);
-                          setEditingItem(null);
-                          setPanel("newLesson");
-                        }}
-                      >
-                        + New Lesson
-                      </Button>
                     </div>
                   </div>
 
@@ -1435,20 +1004,6 @@ export default function AdminContent() {
                         placeholder="Search quizzes..."
                         className="w-64 h-8 text-sm"
                       />
-
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setQuizForm(EMPTY_QUIZ);
-                          setEditingItem(null);
-                          setPanel("newQuiz");
-                          setQuizQuestionsList([]);
-                          setQForm(EMPTY_Q);
-                          setEditingQId(null);
-                        }}
-                      >
-                        + New Quiz
-                      </Button>
                     </div>
                   </div>
 

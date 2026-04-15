@@ -5,6 +5,8 @@ import api, { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
 import { StatusBadge } from "../components/StatusBadge";
 import { EmployeeCourseCard } from "../components/EmployeeCourseCard";
+import CourseMetaLine from "../components/course/CourseMetaLine";
+import PageLoader from "../components/common/PageLoader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,7 +59,8 @@ export default function Courses() {
       setEditingId(null);
       setForm(EMPTY);
       window.location.reload();
-    } catch {
+    } catch (error) {
+      console.error("Failed to save course", error);
     } finally {
       setSaving(false);
     }
@@ -70,24 +73,13 @@ export default function Courses() {
     window.location.reload();
   };
 
-  if (loading)
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
+  if (loading) return <PageLoader />;
 
   const filtered = isAdmin
     ? courses
     : filter === "all"
       ? courses
       : courses.filter((c) => c.status === filter);
-
-  const metaLine = (course) =>
-    [
-      `${course.totalLessons} lesson${course.totalLessons !== 1 ? "s" : ""}`,
-      `${course.totalQuizzes} quiz${course.totalQuizzes !== 1 ? "zes" : ""}`,
-    ].join(" · ");
 
   return (
     <Layout>
@@ -202,9 +194,11 @@ export default function Courses() {
 
                   {/* Lesson + quiz count */}
                   <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">
-                      {metaLine(course)}
-                    </p>
+                    <CourseMetaLine
+                      lessons={course.totalLessons}
+                      quizzes={course.totalQuizzes}
+                      className="text-xs text-muted-foreground"
+                    />
                   </div>
 
                   {/* Admin: view / edit / delete */}

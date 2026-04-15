@@ -11,8 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - skillforge_pgdata:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
-      - ./database/mock_data.sql:/docker-entrypoint-initdb.d/02-mock-data.sql:ro
 
 volumes:
   skillforge_pgdata:

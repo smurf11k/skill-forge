@@ -2,8 +2,9 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import { getUser } from "../api/auth";
 import { useCourseProgress } from "../hooks/useCourseProgress";
-import { EmployeeCourseCard } from "../components/EmployeeCourseCard";
 import StatCard from "../components/StatCard";
+import CourseSection from "../components/course/CourseSection";
+import PageLoader from "../components/common/PageLoader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -12,12 +13,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { courses, stats, loading } = useCourseProgress();
 
-  if (loading)
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
+  if (loading) return <PageLoader />;
 
   const inProgress = courses.filter((c) => c.status === "in_progress");
   const notStarted = courses.filter((c) => c.status === "not_started");
@@ -88,59 +84,23 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* In progress */}
-        {inProgress.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Continue Learning
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {inProgress.map((course) => (
-                <EmployeeCourseCard
-                  key={course.id}
-                  course={course}
-                  navigate={navigate}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        <CourseSection
+          title="Continue Learning"
+          courses={inProgress}
+          navigate={navigate}
+        />
 
-        {/* Not started */}
-        {notStarted.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Not Started
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {notStarted.map((course) => (
-                <EmployeeCourseCard
-                  key={course.id}
-                  course={course}
-                  navigate={navigate}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        <CourseSection
+          title="Not Started"
+          courses={notStarted}
+          navigate={navigate}
+        />
 
-        {/* Completed */}
-        {completed.length > 0 && (
-          <div className="space-y-3">
-            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Completed ✓
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {completed.map((course) => (
-                <EmployeeCourseCard
-                  key={course.id}
-                  course={course}
-                  navigate={navigate}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        <CourseSection
+          title="Completed"
+          courses={completed}
+          navigate={navigate}
+        />
 
         {courses.length === 0 && (
           <p className="text-sm text-muted-foreground">

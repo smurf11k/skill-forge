@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge, ProgressBar, ScoreText } from "./StatusBadge";
+import CourseMetaLine from "./course/CourseMetaLine";
 
 export function EmployeeCourseCard({ course, navigate }) {
   const actionLabel =
@@ -27,10 +28,11 @@ export function EmployeeCourseCard({ course, navigate }) {
           {course.description || "No description."}
         </p>
         <div className="space-y-1">
-          <p className="text-xs text-muted-foreground">
-            {course.totalLessons} lesson{course.totalLessons !== 1 ? "s" : ""} ·{" "}
-            {course.totalQuizzes} quiz{course.totalQuizzes !== 1 ? "zes" : ""}
-          </p>
+          <CourseMetaLine
+            lessons={course.totalLessons}
+            quizzes={course.totalQuizzes}
+            className="text-xs text-muted-foreground"
+          />
           {/* Due date and assignment status badge */}
           {(() => {
             const status = course.deadline_status || course.assignment_status;

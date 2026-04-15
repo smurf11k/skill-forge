@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import PageLoader from "../components/common/PageLoader";
 
 const USER_FILTERS = [
   { value: "employees", label: "Employees only" },
@@ -154,12 +155,7 @@ export default function AdminDashboard() {
       )
     : null;
 
-  if (loading)
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
+  if (loading) return <PageLoader />;
 
   return (
     <Layout>

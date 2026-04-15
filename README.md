@@ -47,9 +47,6 @@ New users are onboarded through invite tokens. Admins can create a pending invit
 ```txt
 skill-forge-pr/
 ├── docker-compose.yml
-├── database/
-│   ├── schema.sql
-│   └── mock_data.sql
 ├── backend/                  # Laravel 11
 │   ├── app/Http/Controllers/
 │   │   ├── AuthController.php
@@ -62,6 +59,9 @@ skill-forge-pr/
 │   │   ├── QuestionController.php
 │   │   ├── ResultController.php
 │   │   └── UserController.php
+│   ├── database/
+│   │   ├── migrations/
+│   │   └── seeders/
 │   └── routes/api.php
 ├── frontend/                 # React + Vite
 │   └── src/
@@ -69,10 +69,19 @@ skill-forge-pr/
 │       ├── api/auth.js
 │       ├── hooks/useCourseProgress.js
 │       ├── components/
+│       │   ├── admin/
+│       │   │   └── ContentEditors.jsx
+│       │   ├── common/
+│       │   │   └── PageLoader.jsx
 │       │   ├── EmployeeCourseCard.jsx
 │       │   ├── Layout.jsx
 │       │   ├── StatCard.jsx
 │       │   ├── StatusBadge.jsx
+│       │   ├── course/
+│       │   │   ├── buildCourseContentItems.js
+│       │   │   ├── contentTypeMeta.js
+│       │   │   ├── CourseMetaLine.jsx
+│       │   │   └── CourseSection.jsx
 │       │   └── markdown/
 │       │       ├── LessonMarkdownEditor.jsx
 │       │       └── MarkdownContent.jsx
@@ -110,6 +119,9 @@ skill-forge-pr/
 - `App.jsx` wires public, employee, and admin routes, including the public invite acceptance screen.
 - `hooks/useCourseProgress.js` enriches course data with progress metrics, quiz/lesson totals, average score, and assignment metadata.
 - `components/EmployeeCourseCard.jsx` is the shared employee course-card component used in both Dashboard and Courses views.
+- `components/common/PageLoader.jsx` standardizes the repeated loading state wrapper used across pages.
+- `components/course/` holds shared course UI helpers, including the lesson/quiz metadata line, content-type icons, and the merged course-content builder used by the course editor pages.
+- `components/admin/ContentEditors.jsx` centralizes the reusable course, lesson, quiz, and question editor forms.
 - `components/StatCard.jsx` is a reusable stat card component with customizable visual accents (emoji or icon).
 - `pages/AdminUsers.jsx` combines active-user management with pending-invite management in a tabbed admin UI.
 - `pages/AdminAssignments.jsx` manages assigning courses, due dates, and assignment lifecycle actions.
@@ -137,16 +149,20 @@ cp .env.example .env
 # Set FRONTEND_URL=http://localhost:5173
 # Configure MAIL_* if you want invite emails to be sent instead of logged
 
-# 4. Start the backend
+# 4. Build the schema and seed demo data
+php artisan migrate --seed
+
+# 5. Start the backend
 php artisan serve
 
-# 5. Install frontend dependencies and start dev server
+# 6. Install frontend dependencies and start dev server
 cd ../frontend
 npm install
 npm run dev
 ```
 
-The schema is applied automatically on first Docker start via `database/schema.sql`. Default credentials and mock data can be seeded from SQL files during initialization.
+The database schema now lives in Laravel migrations under `backend/database/migrations`, and the mock/demo dataset is seeded through `backend/database/seeders`.
+After starting PostgreSQL, run `php artisan migrate --seed` from the backend to build and populate the database.
 
 ---
 
@@ -267,7 +283,7 @@ Quizzes require **80%** to pass. A course is complete when all lessons are read 
 - [ ] Timed quizzes
 - [x] Course deadlines
 - [ ] General UI polish
-- [ ] Tests (unit, feature)
+- [x] Tests (unit, feature)
 
 ---
 

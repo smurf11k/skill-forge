@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 
 class CourseAssignmentController extends Controller
 {
@@ -14,8 +12,6 @@ class CourseAssignmentController extends Controller
 
     public function index(Request $request)
     {
-        self::ensureAssignmentsTable();
-
         $user = $request->user();
 
         $query = DB::table('course_assignments')
@@ -70,8 +66,6 @@ class CourseAssignmentController extends Controller
 
     public function store(Request $request)
     {
-        self::ensureAssignmentsTable();
-
         $admin = $request->user();
 
         if ($admin->role !== 'admin') {
@@ -90,7 +84,7 @@ class CourseAssignmentController extends Controller
         $userIds = collect($validated['user_ids'] ?? [])
             ->when(
                 isset($validated['user_id']),
-                fn ($collection) => $collection->push($validated['user_id'])
+                fn($collection) => $collection->push($validated['user_id'])
             )
             ->filter()
             ->unique()
@@ -235,8 +229,6 @@ class CourseAssignmentController extends Controller
 
     public function update(Request $request, string $id)
     {
-        self::ensureAssignmentsTable();
-
         $admin = $request->user();
 
         if ($admin->role !== 'admin') {
@@ -297,8 +289,6 @@ class CourseAssignmentController extends Controller
 
     public function destroy(Request $request, string $id)
     {
-        self::ensureAssignmentsTable();
-
         $admin = $request->user();
 
         if ($admin->role !== 'admin') {
@@ -316,8 +306,6 @@ class CourseAssignmentController extends Controller
 
     public static function syncCompletionForUserCourse(int $userId, int $courseId): void
     {
-        self::ensureAssignmentsTable();
-
         $lessonIds = DB::table('lessons')
             ->where('course_id', $courseId)
             ->where('status', 'published')
@@ -428,25 +416,4 @@ class CourseAssignmentController extends Controller
             ->exists();
     }
 
-    private static function ensureAssignmentsTable(): void
-    {
-        if (Schema::hasTable('course_assignments')) {
-            return;
-        }
-
-        Schema::create('course_assignments', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('course_id')->constrained('courses')->cascadeOnDelete();
-            $table->foreignId('assigned_by')->constrained('users')->restrictOnDelete();
-            $table->timestamp('due_at')->nullable();
-            $table->timestamp('assigned_at')->useCurrent();
-            $table->timestamp('notification_sent_at')->nullable();
-            $table->timestamp('completed_at')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->nullable()->useCurrent();
-
-            $table->unique(['user_id', 'course_id']);
-        });
-    }
 }

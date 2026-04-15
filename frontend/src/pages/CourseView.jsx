@@ -9,20 +9,20 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import MarkdownContent from "../components/markdown/MarkdownContent";
+import { CONTENT_TYPE_META } from "../components/course/contentTypeMeta";
+import { buildCourseContentItems } from "../components/course/buildCourseContentItems";
+import CourseMetaLine from "../components/course/CourseMetaLine";
+import PageLoader from "../components/common/PageLoader";
 
 const PASS = 80;
-
-const TYPE_META = {
-  lesson: { icon: "📖", label: "Lesson" },
-  quiz: { icon: "📝", label: "Quiz" },
-};
 
 function LessonContent({ content }) {
   return <MarkdownContent content={content} />;
 }
 
 function SidebarRow({ item, index, isActive, isDone, onClick }) {
-  const meta = TYPE_META[item._type];
+  const meta = CONTENT_TYPE_META[item._type];
+  const ItemIcon = meta.icon;
 
   return (
     <button
@@ -48,7 +48,7 @@ function SidebarRow({ item, index, isActive, isDone, onClick }) {
       </div>
 
       <span className="flex-1 truncate">{item.title}</span>
-      <span className="text-xs opacity-50">{meta.icon}</span>
+      <ItemIcon className="h-4 w-4 text-muted-foreground/70 shrink-0" />
     </button>
   );
 }
@@ -213,20 +213,6 @@ export default function CourseView() {
 
   const [loading, setLoading] = useState(true);
 
-  const buildItems = (lessons, quizzes) =>
-    [
-      ...lessons.map((lesson) => ({
-        ...lesson,
-        _type: "lesson",
-        _dnd_id: `lesson-${lesson.id}`,
-      })),
-      ...quizzes.map((quiz) => ({
-        ...quiz,
-        _type: "quiz",
-        _dnd_id: `quiz-${quiz.id}`,
-      })),
-    ].sort((a, b) => a.order_number - b.order_number);
-
   const loadQuestions = async (quizId) => {
     if (questions[quizId]) return questions[quizId];
 
@@ -262,7 +248,7 @@ export default function CourseView() {
           api.get(`/assignments?course_id=${id}`),
         ]);
 
-      const merged = buildItems(lessonsRes.data, quizzesRes.data);
+      const merged = buildCourseContentItems(lessonsRes.data, quizzesRes.data);
 
       setCourse(courseRes.data);
       setItems(merged);
@@ -459,13 +445,7 @@ export default function CourseView() {
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   if (!course) return null;
 
@@ -513,10 +493,11 @@ export default function CourseView() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                {allLessons.length} lesson{allLessons.length !== 1 ? "s" : ""} ·{" "}
-                {allQuizzes.length} quiz{allQuizzes.length !== 1 ? "zes" : ""}
-              </p>
+              <CourseMetaLine
+                lessons={allLessons.length}
+                quizzes={allQuizzes.length}
+                className="text-xs text-muted-foreground"
+              />
 
               <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                 <div
@@ -604,7 +585,10 @@ export default function CourseView() {
               <div className="w-full text-left">
                 <div className="mb-4">
                   <Badge variant="outline" className="text-xs mb-2">
-                    📖 Lesson
+                    <span className="inline-flex items-center gap-1.5">
+                      <CONTENT_TYPE_META.lesson.icon className="h-3.5 w-3.5" />
+                      {CONTENT_TYPE_META.lesson.label}
+                    </span>
                   </Badge>
                   <h1 className="text-2xl font-semibold">{activeItem.title}</h1>
                 </div>
@@ -640,7 +624,10 @@ export default function CourseView() {
               <div className="w-full text-left">
                 <div className="mb-4">
                   <Badge variant="outline" className="text-xs mb-2">
-                    📝 Quiz
+                    <span className="inline-flex items-center gap-1.5">
+                      <CONTENT_TYPE_META.quiz.icon className="h-3.5 w-3.5" />
+                      {CONTENT_TYPE_META.quiz.label}
+                    </span>
                   </Badge>
                   <h1 className="text-2xl font-semibold">{activeItem.title}</h1>
                 </div>

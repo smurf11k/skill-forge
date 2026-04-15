@@ -260,10 +260,10 @@ export default function AdminTeamProgress() {
           <CardContent className="p-0">
             <div className="grid grid-cols-12 gap-3 px-4 py-2 border-b text-xs font-medium text-muted-foreground uppercase tracking-wide">
               <span className="col-span-3">Employee</span>
-              <span className="col-span-2">Course</span>
+              <span className="col-span-3">Course</span>
               <span className="col-span-1">Lessons</span>
               <span className="col-span-1">Quizzes</span>
-              <span className="col-span-2">Avg Score</span>
+              <span className="col-span-1 text-center">Avg</span>
               <span className="col-span-1">Last Quiz</span>
               <span className="col-span-2 pl-4">Status</span>
             </div>
@@ -287,16 +287,19 @@ export default function AdminTeamProgress() {
                     )}
                   </div>
                 </div>
-                <span className="col-span-2 text-sm">{row.course.title}</span>
+                <span className="col-span-3 text-sm">{row.course.title}</span>
                 <span className="col-span-1 text-sm text-muted-foreground">
                   {row.completedLessons}/{row.totalLessons}
                 </span>
                 <span className="col-span-1 text-sm text-muted-foreground">
                   {row.passed}/{row.quizzes.length}
                 </span>
-                <div className="col-span-2">
+                <div className="col-span-1 flex justify-center">
                   {row.avgScore !== null ? (
-                    <ScoreText pct={row.avgScore} className="text-sm" />
+                    <ScoreText
+                      pct={row.avgScore}
+                      className="text-sm whitespace-nowrap"
+                    />
                   ) : (
                     <span className="text-sm text-muted-foreground">—</span>
                   )}

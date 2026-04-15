@@ -47,7 +47,6 @@ export default function AdminUsers() {
   const [inviteForm, setInviteForm] = useState({
     email: "",
     role: "employee",
-    send_email: true,
   });
 
   const load = async () => {
@@ -125,16 +124,9 @@ export default function AdminUsers() {
       setInviteForm({
         email: "",
         role: "employee",
-        send_email: true,
       });
       setShowInviteForm(false);
       setActiveTab("pending");
-
-      if (!data.email_sent && inviteForm.send_email) {
-        alert(
-          "Invite created, but email could not be sent. Check mail config.",
-        );
-      }
     } catch (err) {
       alert(err.response?.data?.error || "Failed to send invite");
     } finally {
@@ -180,11 +172,22 @@ export default function AdminUsers() {
   };
 
   const employees = useMemo(
-    () => users.filter((u) => u.role === "employee"),
+    () =>
+      [...users]
+        .filter((u) => u.role === "employee")
+        .sort((a, b) => a.name.localeCompare(b.name)),
     [users],
   );
   const admins = useMemo(
-    () => users.filter((u) => u.role === "admin"),
+    () =>
+      [...users]
+        .filter((u) => u.role === "admin")
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [users],
+  );
+
+  const sortedUsers = useMemo(
+    () => [...users].sort((a, b) => a.name.localeCompare(b.name)),
     [users],
   );
 
@@ -233,7 +236,7 @@ export default function AdminUsers() {
 
         {showInviteForm && (
           <Card>
-            <CardContent className="pt-6 space-y-4">
+            <CardContent className="pt-2 space-y-4">
               <div>
                 <h2 className="text-lg font-semibold">Invite New User</h2>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -279,20 +282,6 @@ export default function AdminUsers() {
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={inviteForm.send_email}
-                  onChange={(e) =>
-                    setInviteForm((prev) => ({
-                      ...prev,
-                      send_email: e.target.checked,
-                    }))
-                  }
-                />
-                Send invite email now
-              </label>
-
               <div className="flex gap-2">
                 <Button onClick={handleInvite} disabled={inviteSaving}>
                   {inviteSaving ? "Sending…" : "Send Invite"}
@@ -304,7 +293,6 @@ export default function AdminUsers() {
                     setInviteForm({
                       email: "",
                       role: "employee",
-                      send_email: true,
                     });
                   }}
                 >
@@ -332,7 +320,7 @@ export default function AdminUsers() {
                 </p>
               )}
 
-              {users.map((user, i) => {
+              {sortedUsers.map((user, i) => {
                 const isSelf = user.id === currentUser.id;
 
                 return (

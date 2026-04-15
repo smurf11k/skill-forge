@@ -14,30 +14,21 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import {
-  BookOpen,
-  FileQuestion,
-  Lightbulb,
-  Pencil,
-  Trash2,
-} from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import Layout from "../components/Layout";
 import api, { getUser } from "../api/auth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { CONTENT_TYPE_META } from "../components/course/contentTypeMeta";
+import { buildCourseContentItems } from "../components/course/buildCourseContentItems";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import LessonMarkdownEditor from "../components/markdown/LessonMarkdownEditor";
+  CourseEditorForm,
+  LessonEditorForm,
+  QuizEditorForm,
+  QuestionEditorForm,
+} from "../components/admin/ContentEditors";
+import PageLoader from "../components/common/PageLoader";
 
 const EMPTY_LESSON = { title: "", content: "", status: "draft" };
 const EMPTY_QUIZ = { title: "", status: "draft" };
@@ -66,11 +57,6 @@ function StatusPill({ status }) {
   );
 }
 
-const TYPE_META = {
-  lesson: { icon: BookOpen },
-  quiz: { icon: FileQuestion },
-};
-
 function SortableContentItem({ item, onEdit, onDelete }) {
   const {
     attributes,
@@ -87,7 +73,7 @@ function SortableContentItem({ item, onEdit, onDelete }) {
     opacity: isDragging ? 0.4 : 1,
   };
 
-  const meta = TYPE_META[item._type];
+  const meta = CONTENT_TYPE_META[item._type];
   const ItemIcon = meta.icon;
 
   return (
@@ -138,98 +124,38 @@ function QuestionForm({
   setSaving,
   setQuizQuestions,
 }) {
+  const isEdit = editingQuestionId && editingQuestionId !== "new";
+
   return (
-    <Card>
-      <CardContent className="pt-3 pb-3 space-y-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          {editingQuestionId && editingQuestionId !== "new"
-            ? "Edit Question"
-            : "New Question"}
-        </p>
+    <QuestionEditorForm
+      mode={isEdit ? "edit" : "create"}
+      form={form}
+      setForm={setForm}
+      saving={saving}
+      onSave={async () => {
+        setSaving(true);
+        try {
+          if (isEdit) {
+            await api.put(`/questions/${editingQuestionId}`, form);
+          } else {
+            await api.post("/questions", { ...form, quiz_id: quizId });
+          }
 
-        <Textarea
-          value={form.question_text}
-          onChange={(e) => setForm({ ...form, question_text: e.target.value })}
-          rows={2}
-          placeholder="Question text"
-        />
-
-        <div className="grid grid-cols-2 gap-2">
-          {["a", "b", "c", "d"].map((opt) => (
-            <div key={opt} className="space-y-1">
-              <Label className="text-xs">Option {opt.toUpperCase()}</Label>
-              <Input
-                value={form[`option_${opt}`]}
-                onChange={(e) =>
-                  setForm({ ...form, [`option_${opt}`]: e.target.value })
-                }
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-xs">Correct Answer</Label>
-          <Select
-            value={form.correct_answer}
-            onValueChange={(v) => setForm({ ...form, correct_answer: v })}
-          >
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {["a", "b", "c", "d"].map((opt) => (
-                <SelectItem key={opt} value={opt}>
-                  {opt.toUpperCase()} —{" "}
-                  {form[`option_${opt}`] || `Option ${opt.toUpperCase()}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            disabled={saving}
-            onClick={async () => {
-              setSaving(true);
-              try {
-                if (editingQuestionId && editingQuestionId !== "new") {
-                  await api.put(`/questions/${editingQuestionId}`, form);
-                } else {
-                  await api.post("/questions", { ...form, quiz_id: quizId });
-                }
-
-                const { data } = await api.get(`/quizzes/${quizId}/questions`);
-                setQuizQuestions(data);
-                setForm(EMPTY_QUESTION);
-                setEditingQuestionId(null);
-              } catch {
-                alert("Failed to save question.");
-              } finally {
-                setSaving(false);
-              }
-            }}
-          >
-            {editingQuestionId && editingQuestionId !== "new"
-              ? "Save"
-              : "Add Question"}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setEditingQuestionId(null);
-              setForm(EMPTY_QUESTION);
-            }}
-          >
-            Cancel
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          const { data } = await api.get(`/quizzes/${quizId}/questions`);
+          setQuizQuestions(data);
+          setForm(EMPTY_QUESTION);
+          setEditingQuestionId(null);
+        } catch {
+          alert("Failed to save question.");
+        } finally {
+          setSaving(false);
+        }
+      }}
+      onCancel={() => {
+        setEditingQuestionId(null);
+        setForm(EMPTY_QUESTION);
+      }}
+    />
   );
 }
 
@@ -256,7 +182,7 @@ function QuestionsList({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <h3 className="text-sm font-semibold">
         Questions ({quizQuestions.length})
       </h3>
@@ -274,8 +200,9 @@ function QuestionsList({
                 <p className="text-sm flex-1">{q.question_text}</p>
                 <div className="flex gap-1 shrink-0">
                   <Button
-                    size="sm"
                     variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
                     onClick={() => {
                       setQuestionForm({
                         question_text: q.question_text,
@@ -287,13 +214,14 @@ function QuestionsList({
                       });
                       setEditingQuestionId(q.id);
                     }}
+                    aria-label="Edit question"
                   >
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   <Button
-                    size="sm"
                     variant="ghost"
-                    className="text-destructive hover:text-destructive"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={async () => {
                       if (!confirm("Delete this question?")) return;
                       try {
@@ -306,8 +234,9 @@ function QuestionsList({
                         alert("Failed to delete question.");
                       }
                     }}
+                    aria-label="Delete question"
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -319,16 +248,18 @@ function QuestionsList({
       {editingQuestionId === "new" ? (
         <QuestionForm {...qProps} />
       ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            setQuestionForm(EMPTY_QUESTION);
-            setEditingQuestionId("new");
-          }}
-        >
-          + Add Question
-        </Button>
+        <div className="pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setQuestionForm(EMPTY_QUESTION);
+              setEditingQuestionId("new");
+            }}
+          >
+            + Add Question
+          </Button>
+        </div>
       )}
 
       {quizQuestions.length === 0 && editingQuestionId !== "new" && (
@@ -369,22 +300,6 @@ export default function AdminCourseView() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
-  const buildItems = (lessons, quizzes) => {
-    const ls = lessons.map((l) => ({
-      ...l,
-      _type: "lesson",
-      _dnd_id: `lesson-${l.id}`,
-    }));
-
-    const qs = quizzes.map((q) => ({
-      ...q,
-      _type: "quiz",
-      _dnd_id: `quiz-${q.id}`,
-    }));
-
-    return [...ls, ...qs].sort((a, b) => a.order_number - b.order_number);
-  };
-
   const loadAll = async () => {
     const [courseRes, lessonsRes, quizzesRes] = await Promise.all([
       api.get(`/courses/${id}`),
@@ -393,7 +308,7 @@ export default function AdminCourseView() {
     ]);
 
     const loadedCourse = courseRes.data;
-    const merged = buildItems(lessonsRes.data, quizzesRes.data);
+    const merged = buildCourseContentItems(lessonsRes.data, quizzesRes.data);
 
     setCourse(loadedCourse);
     setItems(merged);
@@ -631,13 +546,7 @@ export default function AdminCourseView() {
 
   const contentCount = useMemo(() => items.length, [items]);
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
-  }
+  if (loading) return <PageLoader />;
 
   if (!course) return null;
 
@@ -648,98 +557,20 @@ export default function AdminCourseView() {
           <div className="px-8 py-8 space-y-6">
             {panel === "course" && (
               <div>
-                <div className="mb-4">
-                  <button
-                    onClick={() => navigate("/admin/content")}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ← Courses
-                  </button>
-                  <h1 className="text-2xl font-semibold mt-1">
-                    Edit: {course.title}
-                  </h1>
-                </div>
-
                 <div className="grid grid-cols-2 gap-6 items-start">
                   <div className="space-y-4">
-                    <Card>
-                      <CardContent className="pt-4 space-y-4">
-                        <div className="space-y-1">
-                          <Label>Course Title</Label>
-                          <Input
-                            value={courseForm.title}
-                            onChange={(e) =>
-                              setCourseForm({
-                                ...courseForm,
-                                title: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-
-                        <div className="space-y-1">
-                          <Label>Description</Label>
-                          <Textarea
-                            value={courseForm.description}
-                            onChange={(e) =>
-                              setCourseForm({
-                                ...courseForm,
-                                description: e.target.value,
-                              })
-                            }
-                            rows={4}
-                          />
-                        </div>
-
-                        <Separator />
-
-                        <p className="text-xs text-muted-foreground">
-                          Draft courses are only visible to admins.
-                        </p>
-
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            onClick={() => saveCourse("published")}
-                            disabled={saving}
-                          >
-                            Save & Publish
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => saveCourse("draft")}
-                            disabled={saving}
-                          >
-                            Save as Draft
-                          </Button>
-                          {course.status === "published" && (
-                            <Button
-                              variant="ghost"
-                              className="text-muted-foreground"
-                              onClick={() => saveCourse("draft")}
-                              disabled={saving}
-                            >
-                              Unpublish → Draft
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            onClick={() => navigate("/admin/content")}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-
-                        <Separator />
-
-                        <Button
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={deleteCourse}
-                        >
-                          Delete Course
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    <CourseEditorForm
+                      backLabel="Courses"
+                      title={`Edit: ${course.title}`}
+                      form={courseForm}
+                      setForm={setCourseForm}
+                      onBack={() => navigate("/admin/content")}
+                      onPublish={() => saveCourse("published")}
+                      onDraft={() => saveCourse("draft")}
+                      onCancel={() => navigate("/admin/content")}
+                      onDelete={deleteCourse}
+                      saving={saving}
+                    />
                   </div>
 
                   <div className="space-y-3">
@@ -822,174 +653,41 @@ export default function AdminCourseView() {
 
             {panel === "lesson" && (
               <div className="max-w-4xl space-y-4">
-                <div>
-                  <button
-                    onClick={() => setPanel("course")}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ← Back to Course
-                  </button>
-                  <h1 className="text-2xl font-semibold mt-1">
-                    {editingItem ? "Edit Lesson" : "Create New Lesson"}
-                  </h1>
-                </div>
-
-                <Card>
-                  <CardContent className="pt-4 space-y-4">
-                    <div className="space-y-1">
-                      <Label>Title</Label>
-                      <Input
-                        value={lessonForm.title}
-                        onChange={(e) =>
-                          setLessonForm({
-                            ...lessonForm,
-                            title: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label>Content</Label>
-                      <LessonMarkdownEditor
-                        value={lessonForm.content}
-                        onChange={(value) =>
-                          setLessonForm({
-                            ...lessonForm,
-                            content: value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => saveLesson("published")}
-                        disabled={saving}
-                      >
-                        Save & Publish
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => saveLesson("draft")}
-                        disabled={saving}
-                      >
-                        Save as Draft
-                      </Button>
-                      {editingItem?.status === "published" && (
-                        <Button
-                          variant="ghost"
-                          className="text-muted-foreground"
-                          onClick={() => saveLesson("draft")}
-                          disabled={saving}
-                        >
-                          Unpublish → Draft
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        onClick={() => setPanel("course")}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-
-                    {editingItem && (
-                      <>
-                        <Separator />
-                        <Button
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => deleteLesson(editingItem.id)}
-                        >
-                          Delete Lesson
-                        </Button>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
+                <LessonEditorForm
+                  mode={editingItem ? "edit" : "create"}
+                  backLabel="Back to Course"
+                  title={editingItem ? "Edit Lesson" : "Create New Lesson"}
+                  form={lessonForm}
+                  setForm={setLessonForm}
+                  onBack={() => setPanel("course")}
+                  onPublish={() => saveLesson("published")}
+                  onDraft={() => saveLesson("draft")}
+                  onCancel={() => setPanel("course")}
+                  onDelete={
+                    editingItem ? () => deleteLesson(editingItem.id) : undefined
+                  }
+                  saving={saving}
+                />
               </div>
             )}
 
             {panel === "quiz" && (
               <div className="max-w-2xl space-y-4">
-                <div>
-                  <button
-                    onClick={() => setPanel("course")}
-                    className="text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    ← Back to Course
-                  </button>
-                  <h1 className="text-2xl font-semibold mt-1">
-                    {editingItem ? "Edit Quiz" : "Create New Quiz"}
-                  </h1>
-                </div>
-
-                <Card>
-                  <CardContent className="pt-4 space-y-4">
-                    <div className="space-y-1">
-                      <Label>Title</Label>
-                      <Input
-                        value={quizForm.title}
-                        onChange={(e) =>
-                          setQuizForm({
-                            ...quizForm,
-                            title: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => saveQuiz("published")}
-                        disabled={saving}
-                      >
-                        Save & Publish
-                      </Button>
-                      <Button
-                        variant="outline"
-                        onClick={() => saveQuiz("draft")}
-                        disabled={saving}
-                      >
-                        Save as Draft
-                      </Button>
-                      {editingItem?.status === "published" && (
-                        <Button
-                          variant="ghost"
-                          className="text-muted-foreground"
-                          onClick={() => saveQuiz("draft")}
-                          disabled={saving}
-                        >
-                          Unpublish → Draft
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        onClick={() => setPanel("course")}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-
-                    {editingItem && (
-                      <>
-                        <Separator />
-                        <Button
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => deleteQuiz(editingItem.id)}
-                        >
-                          Delete Quiz
-                        </Button>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
+                <QuizEditorForm
+                  mode={editingItem ? "edit" : "create"}
+                  backLabel="Back to Course"
+                  title={editingItem ? "Edit Quiz" : "Create New Quiz"}
+                  form={quizForm}
+                  setForm={setQuizForm}
+                  onBack={() => setPanel("course")}
+                  onPublish={() => saveQuiz("published")}
+                  onDraft={() => saveQuiz("draft")}
+                  onCancel={() => setPanel("course")}
+                  onDelete={
+                    editingItem ? () => deleteQuiz(editingItem.id) : undefined
+                  }
+                  saving={saving}
+                />
 
                 {editingItem ? (
                   <QuestionsList
@@ -1003,14 +701,7 @@ export default function AdminCourseView() {
                     savingQuestion={savingQuestion}
                     setSavingQuestion={setSavingQuestion}
                   />
-                ) : (
-                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
-                    <Lightbulb className="h-3.5 w-3.5" />
-                    <span>
-                      Save the quiz first, then you can add questions to it.
-                    </span>
-                  </p>
-                )}
+                ) : null}
               </div>
             )}
           </div>

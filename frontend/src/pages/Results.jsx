@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import StatCard from "../components/StatCard";
 import { useEffect, useState } from "react";
+import PageLoader from "../components/common/PageLoader";
 
 export default function Results() {
   const user = getUser();
@@ -26,7 +27,8 @@ export default function Results() {
     try {
       await api.delete(`/results/${user.id}/reset`);
       window.location.reload();
-    } catch {
+    } catch (error) {
+      console.error("Failed to reset progress", error);
     } finally {
       setResetting(false);
     }
@@ -45,12 +47,7 @@ export default function Results() {
     loadAssignments();
   }, []);
 
-  if (loading)
-    return (
-      <Layout>
-        <div className="p-8 text-muted-foreground">Loading…</div>
-      </Layout>
-    );
+  if (loading) return <PageLoader />;
 
   return (
     <Layout>
@@ -104,10 +101,10 @@ export default function Results() {
             <CardContent className="p-0">
               {/* Header */}
               <div className="grid grid-cols-12 gap-3 px-4 py-2 border-b text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                <span className="col-span-3">Course</span>
+                <span className="col-span-4">Course</span>
                 <span className="col-span-3">Progress</span>
                 <span className="col-span-1">Quizzes</span>
-                <span className="col-span-2">Avg Score</span>
+                <span className="col-span-1">Avg</span>
                 <span className="col-span-1">Due</span>
                 <span className="col-span-2">Status</span>
               </div>
@@ -149,8 +146,8 @@ export default function Results() {
                     onClick={() => navigate(`/courses/${course.id}`)}
                   >
                     {/* Course name */}
-                    <div className="col-span-3">
-                      <p className="text-sm font-medium">{course.title}</p>
+                    <div className="col-span-4">
+                      <p className="text-base font-semibold">{course.title}</p>
                       {lastAttempt && (
                         <p className="text-xs text-muted-foreground">
                           Last attempt {lastAttempt}
@@ -172,7 +169,7 @@ export default function Results() {
                     </div>
 
                     {/* Avg score */}
-                    <div className="col-span-2">
+                    <div className="col-span-1">
                       {course.avgScore !== null ? (
                         <ScoreText pct={course.avgScore} className="text-sm" />
                       ) : (
