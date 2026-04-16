@@ -42,6 +42,21 @@ Login is token-based via Laravel Sanctum. Admins are redirected to `/admin` on l
 
 New users are onboarded through invite tokens. Admins can create a pending invite, optionally send the email immediately, and the recipient completes account creation on the public `/accept-invite` page. Invite tokens can expire, be revoked, or be resent with a fresh expiry window.
 
+### Admin and Test Employee Access
+
+To log in as an Admin or Test Employee, use the following credentials:
+
+- Admin Account
+  - email: `admin@skillforge.com`
+  - password: `admin123`
+- Employee Account
+  - email: `employee@skillforge.com`
+  - password: `employee123`
+
+For all the other accounts created by the seeder use the password `mock123` to login in.
+
+These accounts can be used to test the platform's functionality with different user roles. If you'd like to add more test users, you can do so by managing user accounts through the Admin dashboard.
+
 ---
 
 ## Architecture
