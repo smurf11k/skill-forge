@@ -3,15 +3,16 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "SkillForge Docs",
-  description: "Internal training platform documentation",
-  appearance: "dark",
+  description: "Documentation for setup, architecture, workflows, and API",
+  appearance: true,
 
   themeConfig: {
     // Top navigation
     nav: [
       { text: "Home", link: "/" },
       { text: "Guide", link: "/guide/setup" },
-      { text: "Reference", link: "/reference/markdown" },
+      { text: "API", link: "/reference/api" },
+      { text: "Roadmap", link: "/roadmap" },
     ],
 
     // Sidebar
@@ -21,8 +22,10 @@ export default defineConfig({
         items: [
           { text: "Setup", link: "/guide/setup" },
           { text: "Architecture", link: "/guide/architecture" },
+          { text: "Auth and Routing", link: "/guide/auth-and-routing" },
           { text: "Employee Guide", link: "/guide/employee" },
           { text: "Admin Guide", link: "/guide/admin" },
+          { text: "Testing", link: "/guide/testing" },
         ],
       },
       {

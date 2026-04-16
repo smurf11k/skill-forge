@@ -1,131 +1,104 @@
 # Admin Guide
 
-This guide explains admin functionality.
+This guide covers all admin-facing workflows in SkillForge.
 
----
+## Admin route map
 
-## Admin Dashboard
+Main admin pages:
 
-Provides overview of:
+- `/admin` dashboard
+- `/admin/team` team progress
+- `/admin/users` users and invites
+- `/admin/content` content management
+- `/admin/courses/:id` per-course editor
+- `/admin/assignments` assignment management
 
-- platform progress
-- course completion rates
-- employee performance
+Only users with role `admin` can access these routes.
 
----
+## Admin dashboard
 
-## Team Progress
+Dashboard summarizes platform state with metrics such as:
 
-Displays:
+- completion indicators
+- at-risk learning signals
+- course-level performance snapshots
 
-- employee progress per course
-- lessons completed
-- quizzes passed
-- average scores
+## Team progress
 
----
+Team progress aggregates employee learning across courses:
 
-## Users
+- lesson completion depth
+- quiz pass/fail outcomes
+- average score context
+
+Use this page for coaching and follow-up planning.
+
+## Users and invites
 
 Admins can:
 
-- view users
-- change roles
+- list users
+- change user roles
 - delete users
+- create invitation links/emails
+- resend invitations
+- revoke pending invitations
 
-Roles:
+Invite acceptance is handled publicly through `/accept-invite`.
 
-- employee
-- admin
+## Assignment management
 
----
+Assignments page supports:
 
-## Manage Content
+- assigning courses to one or many users
+- setting and editing due dates
+- monitoring assignment statuses
+- deleting outdated assignments
 
-Main admin workspace.
+Assignments drive the employee deadline signals shown in course cards.
 
-Includes:
+## Content management
+
+The content workspace allows CRUD for:
 
 - courses
 - lessons
 - quizzes
+- quiz questions
 
----
+Each content type supports publish state management.
 
-## Courses
+## Course editor
 
-Admins can:
+Each course has a dedicated editor where admins can:
 
-- create courses
-- edit title and description
-- publish/unpublish
-- delete
+- view lessons and quizzes in one merged ordered list
+- reorder items by drag and drop
+- jump into inline editing flows quickly
 
----
+## Lesson authoring
 
-## Lessons
+Lesson content is markdown-based and supports:
 
-Admins can:
+- rich text structures
+- tables and code blocks
+- alert callouts
 
-- create lessons
-- write Markdown content
-- preview content
-- publish/unpublish
+Admins can write and preview markdown before publishing.
 
----
+## Quiz and question model
 
-## Quizzes
+Quizzes contain ordered questions.
 
-Admins can:
+Current question model uses one correct answer per question.
 
-- create quizzes
-- manage questions
-- edit answers
-- publish/unpublish
+## Draft and publish lifecycle
 
----
+Recommended release flow:
 
-## Questions
-
-Each quiz supports:
-
-- one correct answer
-
----
-
-## Course Editor
-
-Dedicated page for each course.
-
-Features:
-
-- unified list of lessons + quizzes
-- drag-and-drop ordering
-- inline editing
-- quick creation of new items
-
----
-
-## Draft System
-
-Draft content:
-
-- visible only to admins
-- hidden from employees
-
-Used for:
-
-- preparing content
-- staging releases
-
----
-
-## Recommended Workflow
-
-1. Create course (draft)
-2. Add lessons and quizzes
-3. Write lesson content
-4. Add quiz questions
-5. Reorder content
-6. Preview
-7. Publish
+1. Create course as draft
+2. Add lesson and quiz items
+3. Author markdown and quiz questions
+4. Reorder sequence
+5. Validate in admin preview flow
+6. Publish content for employees

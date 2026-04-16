@@ -1,145 +1,102 @@
 # Architecture
 
-SkillForge is built as a full-stack web application with a clear separation between frontend, backend, and database layers.
+SkillForge is a three-layer system: React frontend, Laravel API backend, and PostgreSQL database.
 
-## Overview
+## System Overview
 
+```txt
+Frontend (React 19 + Vite)
+          |
+          | HTTP (axios)
+          v
+Backend (Laravel 12 API + Sanctum)
+          |
+          v
+PostgreSQL (Docker)
 ```
-Frontend (React + Vite)
-        ↓
-   HTTP (Axios)
-        ↓
-Backend (Laravel API)
-        ↓
- PostgreSQL Database
-```
 
----
+## Frontend Layer
 
-## Frontend
-
-The frontend is built with:
+Core technologies:
 
 - React 19
 - Vite
-- Tailwind CSS v3
-- shadcn/ui
+- Tailwind CSS
+- shadcn/ui primitives
 - react-router-dom
-- axios
-- @dnd-kit
-- react-markdown
-- @uiw/react-md-editor
+- @dnd-kit (ordering UX)
+- react-markdown + remark-gfm + remark-github-blockquote-alert
 
-### Responsibilities
+Key responsibilities:
 
-- Routing and navigation
-- Role-based UI (employee vs admin)
-- Course interaction
-- Markdown rendering
-- Admin content management UI
-- Progress visualization
+- Role-aware route protection (employee vs admin)
+- Content consumption flow (course, lesson, quiz)
+- Admin management interfaces
+- Progress and result visualization
+- Markdown rendering and editing
 
----
+Shared component groups:
 
-## Backend
+- `components/common`: cross-page UI primitives like loaders
+- `components/course`: course-specific metadata and composition helpers
+- `components/admin`: reusable admin editor forms
+- `components/markdown`: markdown renderer and editor wrappers
 
-Built with Laravel 11.
+## Backend Layer
 
-### Responsibilities
+Core technologies:
 
-- Authentication (Sanctum)
-- Authorization (role-based access)
-- CRUD for:
-  - courses
-  - lessons
-  - quizzes
-  - questions
+- Laravel 12
+- Laravel Sanctum
+- PHPUnit/Laravel test tooling
 
-- Lesson progress tracking
-- Quiz submission and scoring
-- Statistics endpoints
+Key responsibilities:
 
----
+- Authentication and token lifecycle
+- Role-based authorization and data visibility
+- CRUD for courses, lessons, quizzes, and questions
+- Lesson progress and quiz scoring
+- Assignment lifecycle with due dates
+- Invite lifecycle (create, resend, revoke, accept)
+- Admin stats and team-progress aggregation
 
-## Database
+## Database Layer
 
-PostgreSQL stores:
+Primary entities:
 
 - users
-- tokens
 - courses
 - lessons
-- lesson_progress
 - quizzes
 - questions
 - results
+- lesson progress
+- course assignments
+- invites
 
----
+Migrations and seeders are maintained in backend Laravel directories and should be treated as source of truth.
 
-## Roles
+## Runtime Access Rules
 
-### Employee
+- Employees can see only published content.
+- Admins can manage draft and published content.
+- Admin routes are protected on frontend and backend.
+- Public invite acceptance remains unauthenticated by design.
 
-- Access only published content
-- Complete lessons
-- Take quizzes
-- Track personal progress
+## Learning Model
 
-### Admin
+- A course contains lessons and quizzes in one ordered sequence.
+- Lessons must be marked complete.
+- Quizzes must be passed with at least 80%.
+- Course completion requires all lessons complete and all quizzes passed.
 
-- Access all content (including drafts)
-- Manage courses, lessons, quizzes
-- Reorder content
-- Manage users
-- View team statistics
+## Markdown Content Model
 
----
+Lesson bodies are authored in Markdown and rendered in-app.
 
-## Content Flow
+Supported authoring features include:
 
-Courses contain:
-
-- lessons
-- quizzes
-
-All items are:
-
-- ordered
-- mixed in one sequence
-
----
-
-## Completion Logic
-
-A course is complete when:
-
-- all lessons are completed
-- all quizzes are passed
-
-### Pass threshold
-
-```
-80%
-```
-
----
-
-## Markdown System
-
-Lesson content is written in Markdown and rendered in the frontend.
-
-Supports:
-
-- headings
-- lists
-- tables
-- code blocks
-- GitHub-style callouts
-
-Callouts are powered by:
-
-```
-remark-github-blockquote-alert
-```
-
-and styled manually in the app.
+- headings, emphasis, lists, links
+- tables and fenced code blocks
+- task lists and standard GFM features
+- alert callouts: note, tip, warning, caution
