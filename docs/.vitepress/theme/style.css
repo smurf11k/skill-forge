@@ -300,6 +300,33 @@ html:not(.dark) body {
     color-mix(in oklab, var(--vp-c-divider) 78%, transparent);
 }
 
+.VPDoc th:first-child,
+.VPDoc td:first-child {
+  white-space: nowrap;
+  width: 5.5rem;
+}
+
+.VPDoc th:nth-child(2),
+.VPDoc td:nth-child(2) {
+  white-space: nowrap;
+  width: 15rem;
+}
+
+.VPDoc th:nth-child(3),
+.VPDoc td:nth-child(3) {
+  white-space: nowrap;
+  width: 9rem;
+}
+
+.VPDoc th:first-child,
+.VPDoc td:first-child,
+.VPDoc th:nth-child(2),
+.VPDoc td:nth-child(2),
+.VPDoc th:nth-child(3),
+.VPDoc td:nth-child(3) {
+  word-break: normal;
+}
+
 .VPDoc th {
   font-size: 0.76rem;
   font-weight: 650;
