@@ -20,6 +20,18 @@ function LessonContent({ content }) {
   return <MarkdownContent content={content} />;
 }
 
+function contentStartsWithTitleHeading(content, title) {
+  if (!content || !title) return false;
+
+  const normalizedTitle = title.trim().toLowerCase();
+  const trimmedContent = content.trimStart();
+  const match = trimmedContent.match(/^#{1,6}\s+(.+?)(?:\r?\n|$)/);
+
+  if (!match) return false;
+
+  return match[1].trim().toLowerCase() === normalizedTitle;
+}
+
 function SidebarRow({ item, index, isActive, isDone, onClick }) {
   const meta = CONTENT_TYPE_META[item._type];
   const ItemIcon = meta.icon;
@@ -310,6 +322,9 @@ export default function CourseView() {
   const currentIndex = items.findIndex((item) => item._dnd_id === activeId);
   const prevItem = currentIndex > 0 ? items[currentIndex - 1] : null;
   const nextItem = currentIndex >= 0 ? (items[currentIndex + 1] ?? null) : null;
+  const lessonContentHasOwnTitle =
+    activeItem?._type === "lesson" &&
+    contentStartsWithTitleHeading(activeItem.content, activeItem.title);
 
   const currentQuestions =
     activeItem?._type === "quiz" ? (questions[activeItem.id] ?? []) : [];
@@ -590,7 +605,11 @@ export default function CourseView() {
                       {CONTENT_TYPE_META.lesson.label}
                     </span>
                   </Badge>
-                  <h1 className="text-2xl font-semibold">{activeItem.title}</h1>
+                  {!lessonContentHasOwnTitle && (
+                    <h1 className="text-2xl font-semibold">
+                      {activeItem.title}
+                    </h1>
+                  )}
                 </div>
 
                 <Separator className="mb-6" />

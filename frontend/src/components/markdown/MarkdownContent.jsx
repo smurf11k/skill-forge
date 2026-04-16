@@ -97,16 +97,16 @@ export default function MarkdownContent({ content }) {
             let wrapperClass = "";
             if (isTip)
               wrapperClass =
-                "my-5 border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-100 rounded [&_.markdown-alert-title_svg]:text-green-400 [&_.markdown-alert-title_svg]:fill-green-400";
+                "my-5 rounded border border-green-500/35 bg-green-500/12 px-4 py-3 text-green-900 dark:bg-green-500/10 dark:text-green-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-green-600 [&_.markdown-alert-title_svg]:fill-green-600 dark:[&_.markdown-alert-title_svg]:text-green-400 dark:[&_.markdown-alert-title_svg]:fill-green-400";
             if (isNote)
               wrapperClass =
-                "my-5 border border-sky-500/30 bg-sky-500/10 px-4 py-3 text-sky-100 rounded [&_.markdown-alert-title_svg]:text-sky-400 [&_.markdown-alert-title_svg]:fill-sky-400";
+                "my-5 rounded border border-sky-500/35 bg-sky-500/12 px-4 py-3 text-sky-900 dark:bg-sky-500/10 dark:text-sky-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-sky-600 [&_.markdown-alert-title_svg]:fill-sky-600 dark:[&_.markdown-alert-title_svg]:text-sky-400 dark:[&_.markdown-alert-title_svg]:fill-sky-400";
             if (isWarning)
               wrapperClass =
-                "my-5 border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-orange-100 rounded [&_.markdown-alert-title_svg]:text-orange-400 [&_.markdown-alert-title_svg]:fill-orange-400";
+                "my-5 rounded border border-orange-500/35 bg-orange-500/12 px-4 py-3 text-orange-950 dark:bg-orange-500/10 dark:text-orange-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-orange-600 [&_.markdown-alert-title_svg]:fill-orange-600 dark:[&_.markdown-alert-title_svg]:text-orange-400 dark:[&_.markdown-alert-title_svg]:fill-orange-400";
             if (isCaution)
               wrapperClass =
-                "my-5 border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-100 rounded [&_.markdown-alert-title_svg]:text-red-400 [&_.markdown-alert-title_svg]:fill-red-400";
+                "my-5 rounded border border-red-500/35 bg-red-500/12 px-4 py-3 text-red-900 dark:bg-red-500/10 dark:text-red-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-red-600 [&_.markdown-alert-title_svg]:fill-red-600 dark:[&_.markdown-alert-title_svg]:text-red-400 dark:[&_.markdown-alert-title_svg]:fill-red-400";
 
             return (
               <div className={wrapperClass} {...props}>
