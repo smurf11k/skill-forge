@@ -67,3 +67,13 @@
 body {
   text-align: left;
 }
+
+@layer components {
+  .deadline-input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
+
+  html:not(.light) .deadline-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}

@@ -352,7 +352,7 @@ export default function AdminAssignments() {
                   <Label>Deadline</Label>
                   <Input
                     type="datetime-local"
-                    className="deadline-input [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="deadline-input [color-scheme:light] dark:[color-scheme:dark] [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                     value={form.due_at}
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, due_at: e.target.value }))
