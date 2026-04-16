@@ -5,6 +5,9 @@ export default defineConfig({
   title: "SkillForge Docs",
   description: "Documentation for setup, architecture, workflows, and API",
   appearance: true,
+  head: [
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+  ],
 
   themeConfig: {
     // Top navigation

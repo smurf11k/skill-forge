@@ -1,5 +1,7 @@
 # SkillForge
 
+Ukrainian version is also available: [README-uk.md](README-uk.md)
+
 An internal employee training platform built for engineering teams. Employees work through structured courses made up of lessons and quizzes, track their own progress, and get scored on knowledge checks. Admins manage all content, monitor team progress, and control who has access.
 
 ---
@@ -8,7 +10,7 @@ An internal employee training platform built for engineering teams. Employees wo
 
 **Frontend** — React 19 + Vite, shadcn/ui, Tailwind CSS v3, @dnd-kit (drag reorder), axios, react-router-dom, lucide-react, react-markdown, remark-gfm, remark-github-blockquote-alert, @uiw/react-md-editor
 
-**Backend** — Laravel 11, Sanctum (token auth), PostgreSQL
+**Backend** — Laravel 12, Sanctum (token auth), PostgreSQL
 
 **Infrastructure** — PostgreSQL runs in Docker, frontend dev server on Vite, backend on `php artisan serve`, and project documentation is built with VitePress in the `docs/` folder
 
@@ -47,7 +49,7 @@ New users are onboarded through invite tokens. Admins can create a pending invit
 ```txt
 skill-forge-pr/
 ├── docker-compose.yml
-├── backend/                  # Laravel 11
+├── backend/                  # Laravel 12
 │   ├── app/Http/Controllers/
 │   │   ├── AuthController.php
 │   │   ├── CourseController.php
@@ -246,12 +248,6 @@ This starts the documentation site in development mode with live reload.
 | DELETE | `/api/assignments/{id}`       | Delete assignment                          |
 | GET    | `/api/admin/stats`            | Platform-wide stats (admin only)           |
 | GET    | `/api/admin/team-progress`    | All results + lesson progress (admin only) |
-
----
-
-## Pass Threshold
-
-Quizzes require **80%** to pass. A course is complete when all lessons are read and all quizzes are passed. Failed attempts are saved and shown in the employee's progress history but do not count toward completion. Employees can retake passed quizzes, and the course stays marked complete regardless.
 
 ---
 
