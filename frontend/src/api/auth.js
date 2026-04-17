@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  //baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  baseURL: "https://jubilant-dream-production-ca3d.up.railway.app/api",
+  // hardcoded for testing, remove later
   withCredentials: true,
 });
 
