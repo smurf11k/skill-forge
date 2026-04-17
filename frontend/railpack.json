@@ -1,0 +1,17 @@
+{
+  "provider": "node",
+  "packages": {
+    "node": "22"
+  },
+  "steps": {
+    "install": {
+      "commands": ["npm install"]
+    },
+    "build": {
+      "commands": ["npm run build"]
+    }
+  },
+  "deploy": {
+    "startCommand": "npm run preview -- --host 0.0.0.0 --port $PORT"
+  }
+}
