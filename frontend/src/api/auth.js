@@ -1,12 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-<<<<<<< HEAD
   //baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   baseURL: "https://jubilant-dream-production-ca3d.up.railway.app/api",
-=======
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
->>>>>>> 0a3b0f8d0e3970f91723fd7c18c0f6aaf166c587
 });
 
 export const getToken = () => localStorage.getItem("sf_token");
