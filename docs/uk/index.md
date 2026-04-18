@@ -45,6 +45,7 @@ SkillForge — це внутрішня платформа навчання, де
 - [Посібник для співробітника](/uk/guide/employee)
 - [Посібник для адміністратора](/uk/guide/admin)
 - [Тестування](/uk/guide/testing)
+- [Демо продукту](/uk/guide/demos)
 - [Довідка Markdown](/uk/reference/markdown)
 - [Огляд API](/uk/reference/api)
 - [Дорожня карта](/uk/roadmap)

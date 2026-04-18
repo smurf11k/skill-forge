@@ -45,6 +45,7 @@ This documentation is written for both developers and product owners. It is orga
 - [Employee Guide](/guide/employee)
 - [Admin Guide](/guide/admin)
 - [Testing](/guide/testing)
+- [Product Demos](/guide/demos)
 - [Markdown Reference](/reference/markdown)
 - [API Overview](/reference/api)
 - [Roadmap](/roadmap)

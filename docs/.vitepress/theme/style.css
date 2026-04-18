@@ -273,6 +273,12 @@ html:not(.dark) body {
   line-height: 1.75;
 }
 
+.VPDoc video[src="/media/full-demo.mp4"],
+.VPDoc video[src="/media/invite-demo.mp4"] {
+  display: block;
+  margin-top: 1rem;
+}
+
 .VPDoc table {
   display: table;
   width: 100% !important;

@@ -21,6 +21,7 @@ const englishSidebar = [
       { text: "Employee Guide", link: "/guide/employee" },
       { text: "Admin Guide", link: "/guide/admin" },
       { text: "Testing", link: "/guide/testing" },
+      { text: "Product Demos", link: "/guide/demos" },
     ],
   },
   {
@@ -56,6 +57,7 @@ const ukrainianSidebar = [
       { text: "Посібник для співробітника", link: "/uk/guide/employee" },
       { text: "Посібник для адміністратора", link: "/uk/guide/admin" },
       { text: "Тестування", link: "/uk/guide/testing" },
+      { text: "Демо продукту", link: "/uk/guide/demos" },
     ],
   },
   {
