@@ -187,6 +187,35 @@ body {
     color: #cf222e;
   }
 
+  /* ── Docs code blocks ───────────────────────────────────────────── */
+  .markdown-code-block {
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    border: 1px solid #30363d;
+    border-radius: 0;
+    background: #0d1117;
+    padding: 1rem 1.1rem;
+    color: #e6edf3;
+    box-shadow: inset 0 1px 0 rgba(240, 246, 252, 0.04);
+  }
+
+  .markdown-code-block__code {
+    display: block;
+    font-family:
+      ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: inherit;
+    white-space: pre;
+  }
+
+  html.light .markdown-code-block {
+    border-color: #d0d7de;
+    background: #f6f8fa;
+    color: #1f2328;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  }
+
   /* ================================================================
      LESSON MD EDITOR
      Key fix: target [data-color-mode] directly on every selector so

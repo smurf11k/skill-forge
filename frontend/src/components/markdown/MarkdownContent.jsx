@@ -130,8 +130,8 @@ export default function MarkdownContent({ content }) {
             }
 
             return (
-              <pre className="mb-4 overflow-x-auto border border-border bg-muted/80 px-4 py-3 text-sm leading-6">
-                <code className="font-mono text-foreground" {...props}>
+              <pre className="markdown-code-block">
+                <code className="markdown-code-block__code" {...props}>
                   {children}
                 </code>
               </pre>
