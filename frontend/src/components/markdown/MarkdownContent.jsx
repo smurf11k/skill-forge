@@ -36,14 +36,20 @@ export default function MarkdownContent({ content }) {
             if ((rawClass || "").includes("markdown-alert-title")) {
               return (
                 <p
-                  className={`${rawClass} [&>svg]:size-4 [&>svg]:inline [&>svg]:mr-2`}
+                  className={`${rawClass} markdown-alert-title-row [&>svg]:size-4 [&>svg]:inline [&>svg]:mr-2 [&>svg]:fill-current`}
                   {...props}
                 >
                   {children}
                 </p>
               );
             }
-            return <p className="mb-4 text-muted-foreground">{children}</p>;
+            // Inside a callout the wrapping div already constrains context;
+            // use inherit so the callout's own color rule wins for body text.
+            return (
+              <p className="mb-4 text-[inherit] last:mb-0 [.markdown-callout_&]:text-foreground [.markdown-body_&:not(.markdown-callout_*)]:text-muted-foreground">
+                {children}
+              </p>
+            );
           },
 
           a: ({ href, children }) => (
@@ -94,22 +100,14 @@ export default function MarkdownContent({ content }) {
                 </div>
               );
 
-            let wrapperClass = "";
-            if (isTip)
-              wrapperClass =
-                "my-5 rounded border border-green-500/35 bg-green-500/12 px-4 py-3 text-green-900 dark:bg-green-500/10 dark:text-green-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-green-600 [&_.markdown-alert-title_svg]:fill-green-600 dark:[&_.markdown-alert-title_svg]:text-green-400 dark:[&_.markdown-alert-title_svg]:fill-green-400";
-            if (isNote)
-              wrapperClass =
-                "my-5 rounded border border-sky-500/35 bg-sky-500/12 px-4 py-3 text-sky-900 dark:bg-sky-500/10 dark:text-sky-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-sky-600 [&_.markdown-alert-title_svg]:fill-sky-600 dark:[&_.markdown-alert-title_svg]:text-sky-400 dark:[&_.markdown-alert-title_svg]:fill-sky-400";
-            if (isWarning)
-              wrapperClass =
-                "my-5 rounded border border-orange-500/35 bg-orange-500/12 px-4 py-3 text-orange-950 dark:bg-orange-500/10 dark:text-orange-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-orange-600 [&_.markdown-alert-title_svg]:fill-orange-600 dark:[&_.markdown-alert-title_svg]:text-orange-400 dark:[&_.markdown-alert-title_svg]:fill-orange-400";
-            if (isCaution)
-              wrapperClass =
-                "my-5 rounded border border-red-500/35 bg-red-500/12 px-4 py-3 text-red-900 dark:bg-red-500/10 dark:text-red-100 [&_p]:text-current [&_li]:text-current [&_.markdown-alert-title_svg]:text-red-600 [&_.markdown-alert-title_svg]:fill-red-600 dark:[&_.markdown-alert-title_svg]:text-red-400 dark:[&_.markdown-alert-title_svg]:fill-red-400";
+            let calloutClass = "markdown-callout ";
+            if (isTip) calloutClass += "markdown-callout-tip";
+            if (isNote) calloutClass += "markdown-callout-note";
+            if (isWarning) calloutClass += "markdown-callout-warning";
+            if (isCaution) calloutClass += "markdown-callout-caution";
 
             return (
-              <div className={wrapperClass} {...props}>
+              <div className={calloutClass} {...props}>
                 {children}
               </div>
             );

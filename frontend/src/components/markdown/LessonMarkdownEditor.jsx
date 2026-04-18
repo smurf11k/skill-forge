@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import MDEditor from "@uiw/react-md-editor";
 import { Button } from "@/components/ui/button";
 import MarkdownContent from "./MarkdownContent";
@@ -19,7 +19,18 @@ function MarkdownPreview({ value }) {
 export default function LessonMarkdownEditor({ value, onChange }) {
   const [tab, setTab] = useState("write");
   const [importing, setImporting] = useState(false);
+  const [colorMode, setColorMode] = useState("dark");
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () =>
+      setColorMode(root.classList.contains("light") ? "light" : "dark");
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -30,7 +41,12 @@ export default function LessonMarkdownEditor({ value, onChange }) {
 
     if (!file) return;
 
-    if (value?.trim() && !confirm("Replace the current lesson content with the imported markdown file?")) {
+    if (
+      value?.trim() &&
+      !confirm(
+        "Replace the current lesson content with the imported markdown file?",
+      )
+    ) {
       event.target.value = "";
       return;
     }
@@ -87,7 +103,7 @@ export default function LessonMarkdownEditor({ value, onChange }) {
       </div>
 
       {tab === "write" ? (
-        <div data-color-mode="dark">
+        <div className="lesson-md-editor" data-color-mode={colorMode}>
           <MDEditor
             value={value}
             onChange={(next) => onChange(next ?? "")}
@@ -95,7 +111,6 @@ export default function LessonMarkdownEditor({ value, onChange }) {
             hideToolbar
             visibleDragbar={false}
             height={400}
-            className="!bg-background !text-foreground"
             textareaProps={{
               placeholder: "Write the lesson in markdown...",
             }}

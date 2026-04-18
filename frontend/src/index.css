@@ -64,11 +64,364 @@
     background: rgba(245, 181, 77, 0.25);
   }
 }
+
 body {
   text-align: left;
 }
 
 @layer components {
+  /* ── Callout title row ──────────────────────────────────────────── */
+  .markdown-alert-title-row {
+    @apply mb-2 inline-flex items-center gap-2 text-sm font-semibold;
+  }
+
+  .markdown-alert-title-row > svg {
+    @apply size-4;
+    fill: currentColor;
+    color: inherit;
+  }
+
+  /* ── Callout base ───────────────────────────────────────────────── */
+  .markdown-callout {
+    margin: 1.25rem 0;
+    border-radius: 16px;
+    border-width: 1px;
+    padding: 0.9rem 1rem;
+    color: hsl(var(--foreground));
+    box-shadow: none;
+  }
+
+  .markdown-callout > :last-child {
+    margin-bottom: 0;
+  }
+
+  .markdown-callout p,
+  .markdown-callout li {
+    color: hsl(var(--foreground));
+  }
+
+  .markdown-callout ul,
+  .markdown-callout ol {
+    margin-bottom: 0;
+  }
+
+  /* ── Callout variants: dark (default) ───────────────────────────── */
+  .markdown-callout-note {
+    background: color-mix(in srgb, #2f81f7 12%, transparent);
+    border-color: rgba(56, 139, 253, 0.32);
+  }
+  .markdown-callout-note .markdown-alert-title,
+  .markdown-callout-note .markdown-alert-title-row,
+  .markdown-callout-note .markdown-alert-title-row > svg {
+    color: #2f81f7;
+  }
+
+  .markdown-callout-tip {
+    background: color-mix(in srgb, #3fb950 12%, transparent);
+    border-color: rgba(63, 185, 80, 0.32);
+  }
+  .markdown-callout-tip .markdown-alert-title,
+  .markdown-callout-tip .markdown-alert-title-row,
+  .markdown-callout-tip .markdown-alert-title-row > svg {
+    color: #3fb950;
+  }
+
+  .markdown-callout-warning {
+    background: color-mix(in srgb, #d29922 12%, transparent);
+    border-color: rgba(210, 153, 34, 0.34);
+  }
+  .markdown-callout-warning .markdown-alert-title,
+  .markdown-callout-warning .markdown-alert-title-row,
+  .markdown-callout-warning .markdown-alert-title-row > svg {
+    color: #d29922;
+  }
+
+  .markdown-callout-caution {
+    background: color-mix(in srgb, #f85149 12%, transparent);
+    border-color: rgba(248, 81, 73, 0.34);
+  }
+  .markdown-callout-caution .markdown-alert-title,
+  .markdown-callout-caution .markdown-alert-title-row,
+  .markdown-callout-caution .markdown-alert-title-row > svg {
+    color: #f85149;
+  }
+
+  /* ── Callout variants: light overrides ──────────────────────────── */
+  html.light .markdown-callout-note {
+    background: #eaf5ff;
+    border-color: rgba(9, 105, 218, 0.3);
+  }
+  html.light .markdown-callout-note .markdown-alert-title,
+  html.light .markdown-callout-note .markdown-alert-title-row,
+  html.light .markdown-callout-note .markdown-alert-title-row > svg {
+    color: #0969da;
+  }
+
+  html.light .markdown-callout-tip {
+    background: #e6f6ea;
+    border-color: rgba(26, 127, 55, 0.28);
+  }
+  html.light .markdown-callout-tip .markdown-alert-title,
+  html.light .markdown-callout-tip .markdown-alert-title-row,
+  html.light .markdown-callout-tip .markdown-alert-title-row > svg {
+    color: #1a7f37;
+  }
+
+  html.light .markdown-callout-warning {
+    background: #fff5d6;
+    border-color: rgba(154, 103, 0, 0.28);
+  }
+  html.light .markdown-callout-warning .markdown-alert-title,
+  html.light .markdown-callout-warning .markdown-alert-title-row,
+  html.light .markdown-callout-warning .markdown-alert-title-row > svg {
+    color: #9a6700;
+  }
+
+  html.light .markdown-callout-caution {
+    background: #fff0ee;
+    border-color: rgba(207, 34, 46, 0.28);
+  }
+  html.light .markdown-callout-caution .markdown-alert-title,
+  html.light .markdown-callout-caution .markdown-alert-title-row,
+  html.light .markdown-callout-caution .markdown-alert-title-row > svg {
+    color: #cf222e;
+  }
+
+  /* ================================================================
+     LESSON MD EDITOR
+     Key fix: target [data-color-mode] directly on every selector so
+     specificity always beats the library's own stylesheet.
+     Do NOT use -webkit-text-fill-color: transparent on the textarea
+     — it makes the user's typed characters completely invisible.
+     ================================================================ */
+
+  /* ── Dark theme ─────────────────────────────────────────────────── */
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor {
+    background-color: #0d1117 !important;
+    border: 1px solid #30363d !important;
+    border-radius: 0.9rem !important;
+    box-shadow: none !important;
+    color: #e6edf3 !important;
+  }
+
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-content,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-area,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre > code,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-container,
+  .lesson-md-editor[data-color-mode="dark"] .wmde-markdown-var,
+  .lesson-md-editor[data-color-mode="dark"] .wmde-markdown-color {
+    background-color: #0d1117 !important;
+    color: #e6edf3 !important;
+  }
+
+  /* Textarea: typed text must be visible — NO -webkit-text-fill-color trick */
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-input {
+    background-color: transparent !important;
+    color: #e6edf3 !important;
+    caret-color: #2f81f7 !important;
+  }
+
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-input::placeholder {
+    color: #8b949e !important;
+  }
+
+  /* Syntax tokens */
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token {
+    background: transparent !important;
+    color: #e6edf3 !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.title,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.title
+    .token,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.title
+    .token.punctuation {
+    color: #f0f6fc !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.bold,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.bold
+    .content {
+    color: #f0f6fc !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.italic,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.italic
+    .content {
+    color: #e6edf3 !important;
+    font-style: italic;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.url,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.url
+    .content,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.link,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.link
+    .content {
+    color: #58a6ff !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.code,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.code-block,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.code-block
+    .content {
+    color: #d2a8ff !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.strike,
+  .lesson-md-editor[data-color-mode="dark"]
+    .w-md-editor-text-pre
+    .token.strike
+    .content {
+    color: #ff7b72 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .punctuation,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text-pre .token.hr {
+    color: #8b949e !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-bar,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-text,
+  .lesson-md-editor[data-color-mode="dark"] .w-md-editor-preview {
+    border-color: #30363d !important;
+  }
+
+  /* ── Light theme ────────────────────────────────────────────────── */
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor {
+    background-color: #edf2f8 !important;
+    border: 1px solid rgba(24, 36, 51, 0.14) !important;
+    border-radius: 0.9rem !important;
+    box-shadow: none !important;
+    color: #182433 !important;
+  }
+
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-content,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-area,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre > code,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-container,
+  .lesson-md-editor[data-color-mode="light"] .wmde-markdown-var,
+  .lesson-md-editor[data-color-mode="light"] .wmde-markdown-color {
+    background-color: #edf2f8 !important;
+    color: #182433 !important;
+  }
+
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-input {
+    background-color: transparent !important;
+    color: #182433 !important;
+    caret-color: #0969da !important;
+  }
+
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-input::placeholder {
+    color: #526174 !important;
+  }
+
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token {
+    background: transparent !important;
+    color: #182433 !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.title,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.title
+    .token,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.title
+    .token.punctuation {
+    color: #0a111a !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.bold,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.bold
+    .content {
+    color: #0a111a !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.italic,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.italic
+    .content {
+    color: #182433 !important;
+    font-style: italic;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.url,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.url
+    .content,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.link,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.link
+    .content {
+    color: #0969da !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.code,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.code-block,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.code-block
+    .content {
+    color: #8250df !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.strike,
+  .lesson-md-editor[data-color-mode="light"]
+    .w-md-editor-text-pre
+    .token.strike
+    .content {
+    color: #cf222e !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .punctuation,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text-pre .token.hr {
+    color: #526174 !important;
+    background: transparent !important;
+  }
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-bar,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-text,
+  .lesson-md-editor[data-color-mode="light"] .w-md-editor-preview {
+    border-color: rgba(24, 36, 51, 0.14) !important;
+  }
+
+  /* ── Misc ───────────────────────────────────────────────────────── */
   .deadline-input::-webkit-calendar-picker-indicator {
     cursor: pointer;
   }
