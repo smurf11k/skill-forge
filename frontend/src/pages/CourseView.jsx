@@ -13,6 +13,10 @@ import { CONTENT_TYPE_META } from "../components/course/contentTypeMeta";
 import { buildCourseContentItems } from "../components/course/buildCourseContentItems";
 import CourseMetaLine from "../components/course/CourseMetaLine";
 import PageLoader from "../components/common/PageLoader";
+import {
+  getDeadlineText,
+  getDeadlineTone,
+} from "../constants/assignmentStatus";
 
 const PASS = 80;
 
@@ -366,25 +370,8 @@ export default function CourseView() {
       })
     : null;
 
-  const deadlineTone =
-    assignment?.deadline_status === "overdue"
-      ? "destructive"
-      : assignment?.deadline_status === "completed_late"
-        ? "secondary"
-        : "outline";
-
-  const deadlineText =
-    assignment?.deadline_status === "completed_on_time"
-      ? "Completed on time"
-      : assignment?.deadline_status === "completed_late"
-        ? "Completed late"
-        : assignment?.deadline_status === "overdue"
-          ? "Overdue"
-          : assignment?.deadline_status === "assigned"
-            ? "Assigned"
-            : assignment?.deadline_status === "completed"
-              ? "Completed"
-              : null;
+  const deadlineTone = getDeadlineTone(assignment);
+  const deadlineText = getDeadlineText(assignment);
 
   const isItemDone = (item) => {
     if (item._type === "lesson") return completedLessonIds.has(item.id);

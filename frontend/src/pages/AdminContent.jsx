@@ -15,10 +15,11 @@ import LessonMarkdownEditor from "../components/markdown/LessonMarkdownEditor";
 import Layout from "../components/Layout";
 import api from "../api/auth";
 import { ScoreText } from "../components/common/StatusBadge";
+import IconActionButton from "../components/common/IconActionButton";
+import PublishStatusPill from "../components/common/PublishStatusPill";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   Select,
@@ -28,235 +29,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
   CourseEditorForm,
   LessonEditorForm,
-  QuestionEditorForm,
   QuizEditorForm,
 } from "../components/admin/ContentEditors";
-
-function StatusPill({ status }) {
-  if (status === "published") {
-    return (
-      <Badge className="border-green-600/35 bg-green-600/18 text-xs text-green-700 hover:bg-green-600/22 dark:text-green-400">
-        Published
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge className="border-yellow-600/35 bg-yellow-600/18 text-xs text-yellow-700 hover:bg-yellow-600/22 dark:text-yellow-400">
-      Draft
-    </Badge>
-  );
-}
-
-function IconActionButton({
-  label,
-  onClick,
-  children,
-  className = "",
-  variant = "ghost",
-}) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant={variant}
-          className={`h-8 w-8 ${className}`}
-          onClick={onClick}
-        >
-          {children}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
-function QuestionForm({
-  quizId,
-  qForm,
-  setQForm,
-  editingQId,
-  setEditingQId,
-  savingQ,
-  setSavingQ,
-  setQuizQuestionsList,
-}) {
-  const isEdit = editingQId && editingQId !== "new";
-
-  return (
-    <QuestionEditorForm
-      mode={isEdit ? "edit" : "create"}
-      form={qForm}
-      setForm={setQForm}
-      saving={savingQ}
-      onSave={async () => {
-        setSavingQ(true);
-        try {
-          if (isEdit) {
-            await api.put(`/questions/${editingQId}`, qForm);
-          } else {
-            await api.post("/questions", { ...qForm, quiz_id: quizId });
-          }
-
-          const { data } = await api.get(`/quizzes/${quizId}/questions`);
-          setQuizQuestionsList(data);
-          setQForm({
-            question_text: "",
-            option_a: "",
-            option_b: "",
-            option_c: "",
-            option_d: "",
-            correct_answer: "a",
-          });
-          setEditingQId(null);
-        } catch {
-          alert("Failed to save question.");
-        } finally {
-          setSavingQ(false);
-        }
-      }}
-      onCancel={() => {
-        setEditingQId(null);
-        setQForm({
-          question_text: "",
-          option_a: "",
-          option_b: "",
-          option_c: "",
-          option_d: "",
-          correct_answer: "a",
-        });
-      }}
-    />
-  );
-}
-
-function QuestionsList({
-  quizId,
-  quizQuestionsList,
-  setQuizQuestionsList,
-  qForm,
-  setQForm,
-  editingQId,
-  setEditingQId,
-  savingQ,
-  setSavingQ,
-}) {
-  const qProps = {
-    quizId,
-    qForm,
-    setQForm,
-    editingQId,
-    setEditingQId,
-    savingQ,
-    setSavingQ,
-    setQuizQuestionsList,
-  };
-
-  return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-semibold">
-        Questions ({quizQuestionsList.length})
-      </h3>
-
-      {quizQuestionsList.map((q, i) => (
-        <Card key={q.id}>
-          <CardContent className="pt-3 pb-3">
-            {editingQId === q.id ? (
-              <QuestionForm {...qProps} />
-            ) : (
-              <div className="flex items-start gap-3">
-                <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded shrink-0 mt-0.5">
-                  Q{i + 1}
-                </span>
-
-                <p className="text-sm flex-1">{q.question_text}</p>
-
-                <div className="flex gap-1 shrink-0">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      setQForm({
-                        question_text: q.question_text,
-                        option_a: q.option_a,
-                        option_b: q.option_b,
-                        option_c: q.option_c,
-                        option_d: q.option_d,
-                        correct_answer: q.correct_answer ?? "a",
-                      });
-                      setEditingQId(q.id);
-                    }}
-                  >
-                    Edit
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="text-destructive hover:text-destructive"
-                    onClick={async () => {
-                      if (!confirm("Delete this question?")) return;
-
-                      try {
-                        await api.delete(`/questions/${q.id}`);
-                        const { data } = await api.get(
-                          `/quizzes/${quizId}/questions`,
-                        );
-                        setQuizQuestionsList(data);
-                      } catch {
-                        alert("Failed to delete question.");
-                      }
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-
-      {editingQId === "new" ? (
-        <QuestionForm {...qProps} />
-      ) : (
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-[var(--radius)]"
-          onClick={() => {
-            setQForm({
-              question_text: "",
-              option_a: "",
-              option_b: "",
-              option_c: "",
-              option_d: "",
-              correct_answer: "a",
-            });
-            setEditingQId("new");
-          }}
-        >
-          + Add Question
-        </Button>
-      )}
-
-      {quizQuestionsList.length === 0 && editingQId !== "new" && (
-        <p className="text-xs text-muted-foreground">No questions yet.</p>
-      )}
-    </div>
-  );
-}
+import QuizQuestionsList from "../components/admin/QuizQuestionsList";
 
 const EMPTY_COURSE = { title: "", description: "", status: "draft" };
 const EMPTY_LESSON = { title: "", content: "", course_id: "", status: "draft" };
@@ -550,16 +330,6 @@ export default function AdminContent() {
     ),
   );
 
-  const qProps = {
-    qForm,
-    setQForm,
-    editingQId,
-    setEditingQId,
-    savingQ,
-    setSavingQ,
-    setQuizQuestionsList,
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -745,10 +515,19 @@ export default function AdminContent() {
                     saving={saving}
                   />
 
-                  <QuestionsList
+                  <QuizQuestionsList
                     quizId={editingItem.id}
-                    quizQuestionsList={quizQuestionsList}
-                    {...qProps}
+                    questions={quizQuestionsList}
+                    setQuestions={setQuizQuestionsList}
+                    form={qForm}
+                    setForm={setQForm}
+                    editingId={editingQId}
+                    setEditingId={setEditingQId}
+                    saving={savingQ}
+                    setSaving={setSavingQ}
+                    emptyQuestion={EMPTY_Q}
+                    actionMode="text"
+                    className="space-y-2"
                   />
                 </div>
               )}
@@ -813,7 +592,7 @@ export default function AdminContent() {
                           </span>
 
                           <div className="col-span-2">
-                            <StatusPill status={course.status} />
+                            <PublishStatusPill status={course.status} />
                           </div>
 
                           <div
@@ -923,7 +702,7 @@ export default function AdminContent() {
                           </span>
 
                           <div className="col-span-2">
-                            <StatusPill status={lesson.status} />
+                            <PublishStatusPill status={lesson.status} />
                           </div>
 
                           <div className="col-span-3 flex justify-end gap-1">
@@ -1058,7 +837,7 @@ export default function AdminContent() {
                             </div>
 
                             <div className="col-span-1">
-                              <StatusPill status={quiz.status} />
+                              <PublishStatusPill status={quiz.status} />
                             </div>
 
                             <div className="col-span-3 flex justify-end gap-1">

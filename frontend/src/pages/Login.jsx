@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api, { saveAuth } from "../api/auth";
+import { getHomeRouteByRole } from "../constants/routes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,7 @@ export default function Login() {
     try {
       const { data } = await api.post("/login", form);
       saveAuth(data.token, data.user);
-      navigate(data.user.role === "admin" ? "/admin" : "/");
+      navigate(getHomeRouteByRole(data.user.role));
     } catch (err) {
       console.log("Login error:", err.response || err);
 

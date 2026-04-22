@@ -20,8 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     'allowed_origins' => [
-        //env('FRONTEND_URL', 'http://localhost:5173'),
-        'https://zealous-mercy-production.up.railway.app',
+        env('FRONTEND_URL', 'http://localhost:5173'),
     ],
 
     'allowed_origins_patterns' => [],

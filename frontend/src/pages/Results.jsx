@@ -13,6 +13,10 @@ import { Button } from "@/components/ui/button";
 import StatCard from "../components/common/StatCard";
 import { useEffect, useState } from "react";
 import PageLoader from "../components/common/PageLoader";
+import {
+  getDeadlineSummaryLabel,
+  isLateOrOverdue,
+} from "../constants/assignmentStatus";
 
 export default function Results() {
   const user = getUser();
@@ -119,14 +123,7 @@ export default function Results() {
                   ? new Date(assignment.due_at).toLocaleDateString()
                   : "—";
 
-                const deadlineStatusText =
-                  assignment?.deadline_status === "completed_on_time"
-                    ? "On time"
-                    : assignment?.deadline_status === "completed_late"
-                      ? "Late"
-                      : assignment?.deadline_status === "overdue"
-                        ? "Overdue"
-                        : null;
+                const deadlineStatusText = getDeadlineSummaryLabel(assignment);
 
                 // find the latest attempt date for this course
                 const courseResults = results.filter(
@@ -184,8 +181,7 @@ export default function Results() {
                       {deadlineStatusText && (
                         <div
                           className={
-                            assignment?.deadline_status === "overdue" ||
-                            assignment?.deadline_status === "completed_late"
+                            isLateOrOverdue(assignment)
                               ? "text-amber-600 mt-1"
                               : "mt-1"
                           }

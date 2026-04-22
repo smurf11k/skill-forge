@@ -6,6 +6,11 @@ import api from "../api/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  ADMIN_NAV_LINKS,
+  EMPLOYEE_NAV_LINKS,
+  ROUTES,
+} from "../constants/routes";
 
 const THEME_STORAGE_KEY = "skillforge-theme";
 
@@ -32,21 +37,7 @@ export default function Layout({ children }) {
     navigate("/login");
   };
 
-  const employeeLinks = [
-    ["/", "Dashboard"],
-    ["/courses", "Courses"],
-    ["/results", "My Progress"],
-  ];
-
-  const adminLinks = [
-    ["/admin", "Dashboard"],
-    ["/admin/team", "Team Progress"],
-    ["/admin/users", "Users & Roles"],
-    ["/admin/content", "Manage Content"],
-    ["/admin/assignments", "Assignments"],
-  ];
-
-  const links = isAdmin ? adminLinks : employeeLinks;
+  const links = isAdmin ? ADMIN_NAV_LINKS : EMPLOYEE_NAV_LINKS;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -59,7 +50,10 @@ export default function Layout({ children }) {
               <NavLink
                 key={to + label}
                 to={to}
-                end={to === "/" || to === "/admin"}
+                end={
+                  to === ROUTES.employee.dashboard ||
+                  to === ROUTES.admin.dashboard
+                }
                 className={({ isActive }) =>
                   `px-3 py-1.5 rounded text-sm transition-colors ${
                     isActive

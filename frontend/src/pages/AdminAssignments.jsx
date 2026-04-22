@@ -14,71 +14,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-function IconActionButton({
-  label,
-  onClick,
-  disabled = false,
-  children,
-  className = "",
-  variant = "ghost",
-}) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          type="button"
-          size="icon"
-          variant={variant}
-          disabled={disabled}
-          className={`h-8 w-8 rounded-[var(--radius)] ${className}`}
-          onClick={onClick}
-        >
-          {children}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
+import IconActionButton from "../components/common/IconActionButton";
+import {
+  ASSIGNMENT_FILTER_STATUSES,
+  getAssignmentStatus,
+  getAssignmentStatusMeta,
+} from "../constants/assignmentStatus";
 
 function StatusBadge({ assignment }) {
-  const status = assignment.deadline_status || assignment.status || "assigned";
-
-  const styles = {
-    assigned: "bg-muted text-muted-foreground border-border",
-    in_progress:
-      "border-blue-500/35 bg-blue-500/18 text-blue-700 dark:text-blue-400",
-    completed:
-      "border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
-    completed_on_time:
-      "border-green-500/35 bg-green-500/18 text-green-700 dark:text-green-400",
-    completed_late:
-      "border-amber-500/35 bg-amber-500/18 text-amber-700 dark:text-amber-400",
-    overdue: "border-red-500/35 bg-red-500/18 text-red-700 dark:text-red-400",
-  };
-
-  const labels = {
-    assigned: "Assigned",
-    in_progress: "In Progress",
-    completed: "Completed",
-    completed_on_time: "On Time",
-    completed_late: "Late",
-    overdue: "Overdue",
-  };
+  const meta = getAssignmentStatusMeta(assignment);
 
   return (
     <span
-      className={`inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-medium whitespace-nowrap ${styles[status] || styles.assigned}`}
+      className={`inline-flex items-center rounded-md border px-2 py-1 text-[11px] font-medium whitespace-nowrap ${meta.badgeClass}`}
     >
-      {labels[status] || "Assigned"}
+      {meta.badgeLabel}
     </span>
   );
 }
@@ -254,8 +206,7 @@ export default function AdminAssignments() {
         filters.course_id === "all" ||
         String(assignment.course_id) === filters.course_id;
 
-      const currentStatus =
-        assignment.deadline_status || assignment.status || "assigned";
+      const currentStatus = getAssignmentStatus(assignment);
       const matchesStatus =
         filters.status === "all" || currentStatus === filters.status;
 
@@ -452,16 +403,11 @@ export default function AdminAssignments() {
                       className="max-h-[min(18rem,var(--radix-select-content-available-height))]"
                     >
                       <SelectItem value="all">All statuses</SelectItem>
-                      <SelectItem value="assigned">Assigned</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="completed_on_time">
-                        Completed On Time
-                      </SelectItem>
-                      <SelectItem value="completed_late">
-                        Completed Late
-                      </SelectItem>
-                      <SelectItem value="overdue">Overdue</SelectItem>
+                      {ASSIGNMENT_FILTER_STATUSES.map((statusKey) => (
+                        <SelectItem key={statusKey} value={statusKey}>
+                          {getAssignmentStatusMeta(statusKey).filterLabel}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -535,6 +481,7 @@ export default function AdminAssignments() {
                       <IconActionButton
                         label="Edit assignment"
                         disabled={rowSaving === `delete-${assignment.id}`}
+                        className="rounded-[var(--radius)]"
                         onClick={() => startEdit(assignment)}
                       >
                         <Pencil className="h-4 w-4" />
@@ -543,6 +490,7 @@ export default function AdminAssignments() {
                         label="Delete assignment"
                         variant="destructive"
                         disabled={rowSaving === `delete-${assignment.id}`}
+                        className="rounded-[var(--radius)]"
                         onClick={() => handleDelete(assignment)}
                       >
                         <Trash2 className="h-4 w-4" />

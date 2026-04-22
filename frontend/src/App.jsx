@@ -12,17 +12,18 @@ import AdminContent from "./pages/AdminContent";
 import AdminAssignments from "./pages/AdminAssignments";
 import AcceptInvite from "./pages/AcceptInvite";
 import { getToken, getUser } from "./api/auth";
+import { ROUTES } from "./constants/routes";
 
 function Protected({ children }) {
-  return getToken() ? children : <Navigate to="/login" replace />;
+  return getToken() ? children : <Navigate to={ROUTES.login} replace />;
 }
 
 function EmployeeOnly({ children }) {
   const token = getToken();
   const user = getUser();
 
-  if (!token) return <Navigate to="/login" replace />;
-  if (user?.role === "admin") return <Navigate to="/admin" replace />;
+  if (!token) return <Navigate to={ROUTES.login} replace />;
+  if (user?.role === "admin") return <Navigate to={ROUTES.admin.dashboard} replace />;
 
   return children;
 }
@@ -31,8 +32,8 @@ function AdminOnly({ children }) {
   const token = getToken();
   const user = getUser();
 
-  if (!token) return <Navigate to="/login" replace />;
-  if (user?.role !== "admin") return <Navigate to="/" replace />;
+  if (!token) return <Navigate to={ROUTES.login} replace />;
+  if (user?.role !== "admin") return <Navigate to={ROUTES.employee.dashboard} replace />;
 
   return children;
 }
@@ -41,13 +42,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path={ROUTES.login} element={<Login />} />
 
-        <Route path="/accept-invite" element={<AcceptInvite />} />
+        <Route path={ROUTES.acceptInvite} element={<AcceptInvite />} />
 
         {/* Employee routes */}
         <Route
-          path="/"
+          path={ROUTES.employee.dashboard}
           element={
             <EmployeeOnly>
               <Dashboard />
@@ -55,7 +56,7 @@ export default function App() {
           }
         />
         <Route
-          path="/courses"
+          path={ROUTES.employee.courses}
           element={
             <EmployeeOnly>
               <Courses />
@@ -63,7 +64,7 @@ export default function App() {
           }
         />
         <Route
-          path="/courses/:id"
+          path={ROUTES.employee.courseView}
           element={
             <EmployeeOnly>
               <CourseView />
@@ -71,7 +72,7 @@ export default function App() {
           }
         />
         <Route
-          path="/results"
+          path={ROUTES.employee.results}
           element={
             <EmployeeOnly>
               <Results />
@@ -81,7 +82,7 @@ export default function App() {
 
         {/* Admin routes */}
         <Route
-          path="/admin"
+          path={ROUTES.admin.dashboard}
           element={
             <AdminOnly>
               <AdminDashboard />
@@ -89,7 +90,7 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/team"
+          path={ROUTES.admin.team}
           element={
             <AdminOnly>
               <AdminTeamProgress />
@@ -97,7 +98,7 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/users"
+          path={ROUTES.admin.users}
           element={
             <AdminOnly>
               <AdminUsers />
@@ -105,7 +106,7 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/content"
+          path={ROUTES.admin.content}
           element={
             <AdminOnly>
               <AdminContent />
@@ -113,7 +114,7 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/courses/:id"
+          path={ROUTES.admin.courseView}
           element={
             <AdminOnly>
               <AdminCourseView />
@@ -121,7 +122,7 @@ export default function App() {
           }
         />
         <Route
-          path="/admin/assignments"
+          path={ROUTES.admin.assignments}
           element={
             <AdminOnly>
               <AdminAssignments />
@@ -129,7 +130,7 @@ export default function App() {
           }
         />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to={ROUTES.employee.dashboard} replace />} />
       </Routes>
     </BrowserRouter>
   );

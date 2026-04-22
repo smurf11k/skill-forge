@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import api, { saveAuth } from "../api/auth";
+import { getHomeRouteByRole, ROUTES } from "../constants/routes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -79,11 +80,7 @@ export default function AcceptInvite() {
       setSuccessMessage("Account created successfully. Redirecting...");
 
       setTimeout(() => {
-        if (data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/");
-        }
+        navigate(getHomeRouteByRole(data.user.role));
       }, 800);
     } catch (err) {
       setError(err.response?.data?.error || "Failed to accept invite.");
@@ -118,7 +115,7 @@ export default function AcceptInvite() {
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => navigate("/login")}
+              onClick={() => navigate(ROUTES.login)}
             >
               Go to Login
             </Button>

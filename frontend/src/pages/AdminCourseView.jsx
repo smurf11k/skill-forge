@@ -19,15 +19,15 @@ import Layout from "../components/Layout";
 import api, { getUser } from "../api/auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { CONTENT_TYPE_META } from "../components/course/contentTypeMeta";
 import { buildCourseContentItems } from "../components/course/buildCourseContentItems";
+import PublishStatusPill from "../components/common/PublishStatusPill";
 import {
   CourseEditorForm,
   LessonEditorForm,
   QuizEditorForm,
-  QuestionEditorForm,
 } from "../components/admin/ContentEditors";
+import QuizQuestionsList from "../components/admin/QuizQuestionsList";
 import PageLoader from "../components/common/PageLoader";
 
 const EMPTY_LESSON = { title: "", content: "", status: "draft" };
@@ -40,22 +40,6 @@ const EMPTY_QUESTION = {
   option_d: "",
   correct_answer: "a",
 };
-
-function StatusPill({ status }) {
-  if (status === "published") {
-    return (
-      <Badge className="border-green-600/35 bg-green-600/18 text-xs text-green-700 hover:bg-green-600/22 dark:text-green-400">
-        Published
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge className="border-yellow-600/35 bg-yellow-600/18 text-xs text-yellow-700 hover:bg-yellow-600/22 dark:text-yellow-400">
-      Draft
-    </Badge>
-  );
-}
 
 function SortableContentItem({ item, onEdit, onDelete }) {
   const {
@@ -91,7 +75,7 @@ function SortableContentItem({ item, onEdit, onDelete }) {
       </span>
       <ItemIcon className="h-4 w-4 shrink-0 text-muted-foreground" />
       <span className="flex-1 truncate">{item.title}</span>
-      <StatusPill status={item.status} />
+      <PublishStatusPill status={item.status} />
       <div className="hidden group-hover:flex gap-1 shrink-0">
         <Button
           variant="ghost"
@@ -110,162 +94,6 @@ function SortableContentItem({ item, onEdit, onDelete }) {
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    </div>
-  );
-}
-
-function QuestionForm({
-  quizId,
-  form,
-  setForm,
-  editingQuestionId,
-  setEditingQuestionId,
-  saving,
-  setSaving,
-  setQuizQuestions,
-}) {
-  const isEdit = editingQuestionId && editingQuestionId !== "new";
-
-  return (
-    <QuestionEditorForm
-      mode={isEdit ? "edit" : "create"}
-      form={form}
-      setForm={setForm}
-      saving={saving}
-      onSave={async () => {
-        setSaving(true);
-        try {
-          if (isEdit) {
-            await api.put(`/questions/${editingQuestionId}`, form);
-          } else {
-            await api.post("/questions", { ...form, quiz_id: quizId });
-          }
-
-          const { data } = await api.get(`/quizzes/${quizId}/questions`);
-          setQuizQuestions(data);
-          setForm(EMPTY_QUESTION);
-          setEditingQuestionId(null);
-        } catch {
-          alert("Failed to save question.");
-        } finally {
-          setSaving(false);
-        }
-      }}
-      onCancel={() => {
-        setEditingQuestionId(null);
-        setForm(EMPTY_QUESTION);
-      }}
-    />
-  );
-}
-
-function QuestionsList({
-  quizId,
-  quizQuestions,
-  setQuizQuestions,
-  questionForm,
-  setQuestionForm,
-  editingQuestionId,
-  setEditingQuestionId,
-  savingQuestion,
-  setSavingQuestion,
-}) {
-  const qProps = {
-    quizId,
-    form: questionForm,
-    setForm: setQuestionForm,
-    editingQuestionId,
-    setEditingQuestionId,
-    saving: savingQuestion,
-    setSaving: setSavingQuestion,
-    setQuizQuestions,
-  };
-
-  return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-semibold">
-        Questions ({quizQuestions.length})
-      </h3>
-
-      {quizQuestions.map((q, i) => (
-        <Card key={q.id}>
-          <CardContent className="pt-3 pb-3">
-            {editingQuestionId === q.id ? (
-              <QuestionForm {...qProps} />
-            ) : (
-              <div className="flex items-start gap-3">
-                <span className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded shrink-0 mt-0.5">
-                  Q{i + 1}
-                </span>
-                <p className="text-sm flex-1">{q.question_text}</p>
-                <div className="flex gap-1 shrink-0">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => {
-                      setQuestionForm({
-                        question_text: q.question_text,
-                        option_a: q.option_a,
-                        option_b: q.option_b,
-                        option_c: q.option_c,
-                        option_d: q.option_d,
-                        correct_answer: q.correct_answer ?? "a",
-                      });
-                      setEditingQuestionId(q.id);
-                    }}
-                    aria-label="Edit question"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={async () => {
-                      if (!confirm("Delete this question?")) return;
-                      try {
-                        await api.delete(`/questions/${q.id}`);
-                        const { data } = await api.get(
-                          `/quizzes/${quizId}/questions`,
-                        );
-                        setQuizQuestions(data);
-                      } catch {
-                        alert("Failed to delete question.");
-                      }
-                    }}
-                    aria-label="Delete question"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-
-      {editingQuestionId === "new" ? (
-        <QuestionForm {...qProps} />
-      ) : (
-        <div className="pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-[var(--radius)]"
-            onClick={() => {
-              setQuestionForm(EMPTY_QUESTION);
-              setEditingQuestionId("new");
-            }}
-          >
-            + Add Question
-          </Button>
-        </div>
-      )}
-
-      {quizQuestions.length === 0 && editingQuestionId !== "new" && (
-        <p className="text-xs text-muted-foreground">No questions yet.</p>
-      )}
     </div>
   );
 }
@@ -693,16 +521,18 @@ export default function AdminCourseView() {
                 />
 
                 {editingItem ? (
-                  <QuestionsList
+                  <QuizQuestionsList
                     quizId={editingItem.id}
-                    quizQuestions={quizQuestions}
-                    setQuizQuestions={setQuizQuestions}
-                    questionForm={questionForm}
-                    setQuestionForm={setQuestionForm}
-                    editingQuestionId={editingQuestionId}
-                    setEditingQuestionId={setEditingQuestionId}
-                    savingQuestion={savingQuestion}
-                    setSavingQuestion={setSavingQuestion}
+                    questions={quizQuestions}
+                    setQuestions={setQuizQuestions}
+                    form={questionForm}
+                    setForm={setQuestionForm}
+                    editingId={editingQuestionId}
+                    setEditingId={setEditingQuestionId}
+                    saving={savingQuestion}
+                    setSaving={setSavingQuestion}
+                    emptyQuestion={EMPTY_QUESTION}
+                    actionMode="icon"
                   />
                 ) : null}
               </div>
