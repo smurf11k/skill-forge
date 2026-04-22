@@ -4,9 +4,7 @@ services:
     container_name: skillforge_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: skillforge
-      POSTGRES_USER: skillforge_user
-      POSTGRES_PASSWORD: skillforge_pass
+    - ./backend/.env
     ports:
       - "5432:5432"
     volumes:
